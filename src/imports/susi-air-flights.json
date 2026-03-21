@@ -1,0 +1,141 @@
+{
+  "JetPhotos": {
+    "Reg": "PK-BVR",
+    "Images": [
+      {
+        "Image": "https://cdn.jetphotos.com/full/6/98911_1502688175.jpg",
+        "Link": "https://www.jetphotos.com/photo/8680709",
+        "Thumbnail": "https://cdn.jetphotos.com/400/6/98911_1502688175.jpg",
+        "DateTaken": "Jun 05, 2017",
+        "DateUploaded": "Aug 24, 2017",
+        "Location": "Banjarmasin Syamsudin Noor - WAOO",
+        "Photographer": "Dimas Satrio Baringgo",
+        "Aircraft": "Cessna 208B Grand Caravan",
+        "Serial": "208B2229",
+        "Airline": "Susi Air"
+      },
+      {
+        "Image": "https://cdn.jetphotos.com/full/6/66251_1432173979.jpg",
+        "Link": "https://www.jetphotos.com/photo/8040285",
+        "Thumbnail": "https://cdn.jetphotos.com/400/6/66251_1432173979.jpg",
+        "DateTaken": "May 19, 2015",
+        "DateUploaded": "Jun 08, 2015",
+        "Location": "Banjarmasin Syamsudin Noor - WAOO",
+        "Photographer": "Gusti Fikri Izzudin Noor",
+        "Aircraft": "Cessna 208B Grand Caravan",
+        "Serial": "208B2229",
+        "Airline": "Susi Air"
+      }
+    ]
+  },
+  "FlightRadar": {
+    "Aircraft": "Cessna Grand Caravan",
+    "Airline": "Susi Air",
+    "Operator": "Susi Air",
+    "TypeCode": "C208",
+    "AirlineCode": "SQS",
+    "OperatorCode": "SQS",
+    "ModeS": "8A035C",
+    "Flights": [
+      {
+        "Date": "01 Mar 2026",
+        "From": "Batam",
+        "To": "Batam",
+        "Flight": "SQS7291",
+        "FlightTime": "2:41",
+        "STD": "05:57",
+        "ATD": "05:57",
+        "STA": "08:37",
+        "Status": "Landed 08:37"
+      },
+      {
+        "Date": "01 Mar 2026",
+        "From": "Batam",
+        "To": "Batam",
+        "Flight": "SQS7284",
+        "FlightTime": "3:33",
+        "STD": "01:25",
+        "ATD": "01:25",
+        "STA": "04:57",
+        "Status": "Landed 04:57"
+      },
+      {
+        "Date": "01 Mar 2026",
+        "From": "—",
+        "To": "Batam",
+        "Flight": "SQS7285",
+        "FlightTime": "0:13",
+        "STD": "00:35",
+        "ATD": "00:35",
+        "STA": "00:48",
+        "Status": "Landed 00:48"
+      },
+      {
+        "Date": "27 Feb 2026",
+        "From": "Batam",
+        "To": "—",
+        "Flight": "SQS7286",
+        "FlightTime": "—",
+        "STD": "08:26",
+        "ATD": "08:26",
+        "STA": "—",
+        "Status": "Unknown"
+      },
+      {
+        "Date": "27 Feb 2026",
+        "From": "Batam",
+        "To": "Batam",
+        "Flight": "SQS7291",
+        "FlightTime": "2:19",
+        "STD": "05:13",
+        "ATD": "05:13",
+        "STA": "07:32",
+        "Status": "Landed 07:32"
+      },
+      {
+        "Date": "27 Feb 2026",
+        "From": "Batam",
+        "To": "Batam",
+        "Flight": "SQS7284",
+        "FlightTime": "3:19",
+        "STD": "01:20",
+        "ATD": "01:20",
+        "STA": "04:38",
+        "Status": "Landed 04:38"
+      },
+      {
+        "Date": "27 Feb 2026",
+        "From": "—",
+        "To": "Batam",
+        "Flight": "SQS7285",
+        "FlightTime": "0:16",
+        "STD": "00:35",
+        "ATD": "00:35",
+        "STA": "00:51",
+        "Status": "Landed 00:51"
+      },
+      {
+        "Date": "24 Feb 2026",
+        "From": "—",
+        "To": "—",
+        "Flight": "SQS7238",
+        "FlightTime": "—",
+        "STD": "07:51",
+        "ATD": "07:51",
+        "STA": "—",
+        "Status": "Unknown"
+      },
+      {
+        "Date": "24 Feb 2026",
+        "From": "—",
+        "To": "—",
+        "Flight": "SQS7239",
+        "FlightTime": "—",
+        "STD": "00:56",
+        "ATD": "00:56",
+        "STA": "—",
+        "Status": "Unknown"
+      }
+    ]
+  }
+}

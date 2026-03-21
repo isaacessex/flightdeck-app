@@ -1,0 +1,9 @@
+Name,Age,Annual Salary,Salary Currency,Sums Insured,Sums Insured Currency,Tax Type,Tax Percentage,Tax Name
+John Smith,45,150000,USD,500000,USD,addition,5,Income Tax
+Sarah Johnson,38,125000,USD,400000,USD,addition,4.5,State Tax
+Michael Chen,52,180000,EUR,600000,EUR,deduction,3,Withholding
+Emma Williams,41,140000,GBP,450000,GBP,addition,6,VAT
+Robert Brown,49,165000,USD,550000,USD,addition,5.5,Federal Tax
+Lisa Martinez,36,110000,USD,350000,USD,addition,4,Local Tax
+David Anderson,55,200000,USD,700000,USD,deduction,2.5,Pension
+Jennifer Lee,43,155000,CAD,480000,CAD,addition,5,Provincial Tax
