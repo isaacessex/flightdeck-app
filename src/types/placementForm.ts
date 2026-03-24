@@ -30,11 +30,6 @@ export interface Aircraft {
   paxSumsReinsuredCurrency: string;
   paxTotalPerOccurrence: string;
   paxTotalPerOccurrenceCurrency: string;
-  liabilityType?: string;
-  standardDeductible?: string;
-  standardDeductibleCurrency?: string;
-  deductibleBuydown?: string;
-  deductibleBuydownCurrency?: string;
   standardUses: string[];
   specialUses: string[];
   specialUsesOther: string;

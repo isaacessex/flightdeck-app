@@ -485,7 +485,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
     if (declinedPlacements.length === 0) return [];
     
     const distribution = declinedPlacements.reduce((acc, p) => {
-      const reason = p.declineReason || 'Not Specified';
+      const reason = p.declinatureReason || 'Not Specified';
       acc[reason] = (acc[reason] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -702,7 +702,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
         }
         acc[year][p.productCode] = (acc[year][p.productCode] || 0) + totalPremium;
         return acc;
-      }, {} as Record<string | number, Record<string, number>>);
+      }, {} as Record<string | number, Record<ProductCode, number>>);
 
     // Transform to chart data format (years as rows, products as columns)
     return Object.entries(yearlyData)
@@ -721,7 +721,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
     const codes = new Set<ProductCode>();
     filteredPlacements
       .filter(p => p.status === 'bound')
-      .forEach(p => codes.add(p.productCode as ProductCode));
+      .forEach(p => codes.add(p.productCode));
     return Array.from(codes);
   }, [filteredPlacements]);
 
@@ -830,7 +830,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
       .forEach(p => {
         const inceptionDate = p.draftData?.inceptionDate || p.inceptionDate || p.submittedDate;
         if (inceptionDate && new Date(inceptionDate).getFullYear() === currentYear) {
-          codes.add(p.productCode as ProductCode);
+          codes.add(p.productCode);
         }
       });
     return Array.from(codes);
@@ -856,7 +856,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
         acc[p.productCode].push(p);
       }
       return acc;
-    }, {} as Record<string, Placement[]>);
+    }, {} as Record<ProductCode, Placement[]>);
 
     return filteredLineslips.map(lineslip => {
       // Get placements for this product code

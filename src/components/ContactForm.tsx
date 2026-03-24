@@ -183,7 +183,6 @@ export function ContactForm({ contact, contacts, onSave, onCancel, initialInsure
       firstName,
       lastName,
       email,
-      phone: contact?.phone ?? "",
       company: type === "Broker"
         ? (companySelectValue === "__other__" ? company : companySelectValue) 
         : company,

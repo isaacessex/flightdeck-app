@@ -82,8 +82,6 @@ export interface Lineslip {
   startDate: string;
   endDate: string;
   overallLimit: number;
-  maxHullLimit?: number;
-  maxLiabilityLimit?: number;
   maxHullLimitFixedWing?: number;
   maxLiabilityLimitFixedWing?: number;
   maxHullLimitRotaryWing?: number;
@@ -226,15 +224,7 @@ export interface Placement {
   status: PlacementStatus;
   quotes?: Quote[];
   declineReason?: string;
-  declinatureReason?: string;
   declineReasonDetail?: string;
-  productName?: string;
-  lastModified?: string;
-  underwriter?: string;
-  createdDate?: string;
-  lineslipReference?: string;
-  contactPerson?: string;
-  expiryDate?: string;
   draftStep?: number; // Store the current step for draft placements
   draftData?: any; // Store all form data for draft placements
   submittedBy?: string; // Email of the user who submitted
@@ -821,7 +811,7 @@ export default function App() {
                   premium: scaledPremium,
                   writtenLine: panelEntry.linePercent,
                   terms: aqr.quote.terms + `\nPanel share: ${panelEntry.linePercent}% of 100% order`,
-                } as Quote);
+                });
               }
               if (allQuotes.length > 0) {
                 updatedPlacement.status = "quoted";
@@ -849,11 +839,11 @@ export default function App() {
                 const autoQuoteResult = calculateBinderQuote(updatedPlacement as Placement, selectedBinder);
                 console.log('⚡ Auto-quote breakdown:', autoQuoteResult.breakdown);
                 
-                const autoQuote = {
+                const autoQuote: Quote = {
                   ...autoQuoteResult.quote,
                   id: `Q-${String((updatedPlacement.quotes?.length || 0) + 1).padStart(3, "0")}`,
                   submittedDate: new Date().toISOString().split("T")[0],
-                } as Quote;
+                };
                 
                 updatedPlacement.status = "quoted";
                 updatedPlacement.quotes = [...(updatedPlacement.quotes || []), autoQuote];
@@ -955,14 +945,14 @@ export default function App() {
             // Scale premium to the binder's line share
             const scaledPremium = Math.round(autoQuoteResult.quote.premium * (panelEntry.linePercent / 100) * 100) / 100;
             
-            const autoQuote = {
+            const autoQuote: Quote = {
               ...autoQuoteResult.quote,
               id: `Q-${String(allQuotes.length + 1).padStart(3, "0")}`,
               submittedDate: new Date().toISOString().split("T")[0],
               premium: scaledPremium,
               writtenLine: panelEntry.linePercent,
               terms: autoQuoteResult.quote.terms + `\nPanel share: ${panelEntry.linePercent}% of 100% order`,
-            } as Quote;
+            };
             allQuotes.push(autoQuote);
             console.log(`🏗️ Panel quote from ${panelBinder.name}: ${panelEntry.linePercent}% → ${autoQuoteResult.quote.currency} ${scaledPremium}`);
           }
@@ -998,11 +988,11 @@ export default function App() {
             const autoQuoteResult = calculateBinderQuote(newPlacement, selectedBinder);
             console.log('⚡ Auto-quote breakdown:', autoQuoteResult.breakdown);
             
-            const autoQuote = {
+            const autoQuote: Quote = {
               ...autoQuoteResult.quote,
               id: `Q-${String((newPlacement.quotes?.length || 0) + 1).padStart(3, "0")}`,
               submittedDate: new Date().toISOString().split("T")[0],
-            } as Quote;
+            };
             
             newPlacement.status = "quoted";
             newPlacement.quotes = [autoQuote];
@@ -1043,10 +1033,11 @@ export default function App() {
     setPlacements((prev) =>
       prev.map((p) => {
         if (p.id === placementId) {
-          const newQuote = {
+          const newQuote: Quote = {
             ...quote,
             id: `Q-${String((p.quotes?.length || 0) + 1).padStart(3, "0")}`,
             submittedDate: new Date().toISOString().split("T")[0],
+            // ── Snapshot all placement data at quote time so the quotation PDF never changes ──
             placementSnapshot: {
               draftData: { ...(p.draftData || {}) },
               insuredName: p.insuredName,
@@ -1058,7 +1049,9 @@ export default function App() {
               inceptionDate: p.draftData?.inceptionDate || p.inceptionDate,
               expiryDate: p.draftData?.expiryDate,
             },
-          } as Quote;
+          };
+          // Send QUOTED notification to broker + preferred broker contact (fire and forget)
+          // Generate the quote slip PDF and attach it to the email
           const updatedPlacement = {
             ...p,
             status: "quoted" as PlacementStatus,
@@ -1675,7 +1668,7 @@ export default function App() {
             }}
           />
         )}
-        {currentView === "review" && <UnderwriterReview placements={placements} onSubmitQuote={handleSubmitQuote} onDecline={(id) => handleDeclinePlacement(id)} />}
+        {currentView === "review" && <UnderwriterReview placements={placements} />}
         {currentView === "lineslipManager" && (
           <LineslipManager
             lineslips={lineslips}

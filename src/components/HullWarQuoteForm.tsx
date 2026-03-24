@@ -1,33 +1,7 @@
 import { useState, useEffect } from "react";
 import { Placement, Lineslip, Contact } from "../App";
-import { formatNumberWithCommas } from "../utils/placementFormHelpers";
 import { HullWarReviewStep } from "./HullWarReviewStep";
 import { HullWarClaimsHistoryStep } from "./HullWarClaimsHistoryStep";
-
-/** Matches Claim shape in HullWarClaimsHistoryStep for typed state */
-interface HullWarClaim {
-  claimDate: string;
-  claimType: string;
-  claimTypeOther: string;
-  amountClaimed: string;
-  amountClaimedCurrency: string;
-  amountPaid: string;
-  amountPaidCurrency: string;
-  claimStatus: string;
-  description: string;
-}
-
-const emptyHullWarClaim = (): HullWarClaim => ({
-  claimDate: "",
-  claimType: "",
-  claimTypeOther: "",
-  amountClaimed: "",
-  amountClaimedCurrency: "USD",
-  amountPaid: "",
-  amountPaidCurrency: "USD",
-  claimStatus: "",
-  description: "",
-});
 
 interface HullWarQuoteFormProps {
   onSubmit: (placement: Omit<Placement, "id">) => void;
@@ -72,12 +46,8 @@ export function HullWarQuoteForm({
   const [territorialExclusions, setTerritorialExclusions] = useState("");
   
   // Step 4: Claims History
-  const [claimsHistory, setClaimsHistory] = useState<HullWarClaim[]>([]);
+  const [claimsHistory, setClaimsHistory] = useState<any[]>([]);
   const [generalClaimsInfo, setGeneralClaimsInfo] = useState("");
-  const [showClaimForm, setShowClaimForm] = useState(false);
-  const [tempClaim, setTempClaim] = useState<HullWarClaim>(emptyHullWarClaim);
-  const [editingClaimIndex, setEditingClaimIndex] = useState<number | null>(null);
-  const [, setHasClaimsHistory] = useState(false);
   
   // Load draft data if editing
   useEffect(() => {
@@ -100,10 +70,7 @@ export function HullWarQuoteForm({
         if (draft.warPerilsIncluded !== undefined) setWarPerilsIncluded(draft.warPerilsIncluded);
         if (draft.alliedPerils) setAlliedPerils(draft.alliedPerils);
         if (draft.territorialExclusions) setTerritorialExclusions(draft.territorialExclusions);
-        if (draft.claimsHistory) {
-          setClaimsHistory(draft.claimsHistory as HullWarClaim[]);
-          setHasClaimsHistory(draft.claimsHistory.length > 0);
-        }
+        if (draft.claimsHistory) setClaimsHistory(draft.claimsHistory);
         if (draft.generalClaimsInfo) setGeneralClaimsInfo(draft.generalClaimsInfo);
       }
     }
@@ -140,16 +107,16 @@ export function HullWarQuoteForm({
       generalClaimsInfo,
     };
 
-    const placement = {
+    const placement: Omit<Placement, "id"> = {
       productCode,
       productName: productCode === 'HD' ? 'Hull Deductible' : 'Hull War',
       insuredName,
       inceptionDate,
-      status: "draft" as const,
+      status: "draft",
       underwriter: "",
       createdDate: new Date().toISOString().split("T")[0],
       draftData,
-    } as Omit<Placement, "id">;
+    };
 
     onSaveDraft(placement);
   };
@@ -177,16 +144,16 @@ export function HullWarQuoteForm({
       generalClaimsInfo,
     };
 
-    const placement = {
+    const placement: Omit<Placement, "id"> = {
       productCode,
       productName: productCode === 'HD' ? 'Hull Deductible' : 'Hull War',
       insuredName,
       inceptionDate,
-      status: "pending" as const,
+      status: "pending",
       underwriter: "",
       createdDate: new Date().toISOString().split("T")[0],
       draftData,
-    } as Omit<Placement, "id">;
+    };
 
     onSubmit(placement);
   };
@@ -197,18 +164,12 @@ export function HullWarQuoteForm({
       <HullWarClaimsHistoryStep
         claimsHistory={claimsHistory}
         setClaimsHistory={setClaimsHistory}
-        showClaimForm={showClaimForm}
-        setShowClaimForm={setShowClaimForm}
-        tempClaim={tempClaim}
-        setTempClaim={setTempClaim}
-        editingClaimIndex={editingClaimIndex}
-        setEditingClaimIndex={setEditingClaimIndex}
-        setHasClaimsHistory={setHasClaimsHistory}
-        selectedMainCoverages={selectedMainCoverages}
-        selectedSubCoverages={[]}
+        generalClaimsInfo={generalClaimsInfo}
+        setGeneralClaimsInfo={setGeneralClaimsInfo}
+        onNext={handleNext}
         onBack={handleBack}
-        onContinue={handleNext}
-        formatNumberWithCommas={formatNumberWithCommas}
+        onSaveDraft={handleSaveDraft}
+        onCancel={onCancel}
         stepNumber={4}
         totalSteps={5}
       />
@@ -218,17 +179,30 @@ export function HullWarQuoteForm({
   if (currentStep === 5) {
     return (
       <HullWarReviewStep
-        placementType="insurance"
-        policyStartDate={inceptionDate}
-        policyEndDate={expiryDate}
+        selectedMainCoverages={selectedMainCoverages}
+        insuredName={insuredName}
+        riskDetails={riskDetails}
+        useOfAircraft={useOfAircraft}
+        selectedContact={selectedContact}
+        selectedLineslip={selectedLineslip}
+        inceptionDate={inceptionDate}
+        expiryDate={expiryDate}
         fleet={fleet}
+        totalHullValue={totalHullValue}
+        hullValueCurrency={hullValueCurrency}
+        geographicalLimits={geographicalLimits}
+        warPerilsIncluded={warPerilsIncluded}
+        alliedPerils={alliedPerils}
+        territorialExclusions={territorialExclusions}
         claimsHistory={claimsHistory}
+        generalClaimsInfo={generalClaimsInfo}
+        contacts={contacts}
+        lineslips={lineslips}
         onBack={handleBack}
         onSubmit={handleSubmit}
-        isSubmitting={false}
-        formatNumberWithCommas={formatNumberWithCommas}
-        insuredName={insuredName}
-        selectedMainCoverages={selectedMainCoverages}
+        onSaveDraft={handleSaveDraft}
+        onCancel={onCancel}
+        onAddContact={onAddContact}
       />
     );
   }

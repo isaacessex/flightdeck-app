@@ -2897,7 +2897,7 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
     setAircraftAgreedValueCurrency(aircraft.aircraftAgreedValueCurrency);
     setLiabilityLimit(aircraft.liabilityLimit);
     setLiabilityLimitCurrency(aircraft.liabilityLimitCurrency);
-    setLiabilityType((aircraft.liabilityType || "CSL") as "CSL" | "TPL");
+    setLiabilityType(aircraft.liabilityType || "CSL");
     setSumsReinsured(aircraft.sumsReinsured);
     setSumsReinsuredCurrency(aircraft.sumsReinsuredCurrency);
     setCrewSumsReinsuredPerSeat(aircraft.crewSumsReinsuredPerSeat || "");
@@ -2968,14 +2968,6 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
       liabilityLimitCurrency,
       sumsReinsured: calculatedSumsReinsured,
       sumsReinsuredCurrency: selectedMainCoverages.includes('HD') ? standardDeductibleCurrency : sumsReinsuredCurrency,
-      crewSumsReinsuredPerSeat,
-      crewSumsReinsuredCurrency,
-      crewTotalPerOccurrence,
-      crewTotalPerOccurrenceCurrency,
-      paxSumsReinsuredPerSeat,
-      paxSumsReinsuredCurrency,
-      paxTotalPerOccurrence,
-      paxTotalPerOccurrenceCurrency,
       standardDeductible,
       standardDeductibleCurrency,
       deductibleBuydown,
@@ -4224,7 +4216,7 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
                         </Label>
                         <div className="flex gap-2">
                           {!isUASProduct && (
-                            <Select value={liabilityType} onValueChange={(value) => setLiabilityType(value as "CSL" | "TPL")}>
+                            <Select value={liabilityType} onValueChange={setLiabilityType}>
                               <SelectTrigger className="w-64 !h-10 bg-white border-gray-300 text-slate-900 focus:border-[#004225] focus:ring-[#004225]/20 rounded-lg text-sm">
                                 <SelectValue />
                               </SelectTrigger>
