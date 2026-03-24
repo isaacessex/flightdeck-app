@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -37,14 +38,14 @@ interface PilotDetailsStepProps {
   minRequiredHours: Record<string, { totalHours: string; typeHours: string }>;
   setMinRequiredHours: (value: Record<string, { totalHours: string; typeHours: string }>) => void;
   opwHours: Record<string, OpwHoursType>;
-  setOpwHours: (value: Record<string, OpwHoursType>) => void;
+  setOpwHours: Dispatch<SetStateAction<Record<string, OpwHoursType>>>;
   crewCoverageType: string;
   crewMembers: CrewMember[];
-  setCrewMembers: (value: CrewMember[]) => void;
+  setCrewMembers: Dispatch<SetStateAction<CrewMember[]>>;
   showCrewMemberForm: boolean;
   setShowCrewMemberForm: (value: boolean) => void;
-  tempCrewMember: { name: string; age: string; position: string };
-  setTempCrewMember: (value: { name: string; age: string; position: string }) => void;
+  tempCrewMember: CrewMember;
+  setTempCrewMember: Dispatch<SetStateAction<CrewMember>>;
   crewPositionOther: string;
   setCrewPositionOther: (value: string) => void;
   shouldSkipStep3: boolean;
@@ -671,7 +672,13 @@ export function PilotDetailsStep({
                       variant="ghost"
                       onClick={() => {
                         setShowCrewMemberForm(false);
-                        setTempCrewMember({ name: "", age: "", position: "" });
+                        setTempCrewMember({
+                          name: "",
+                          age: "",
+                          position: "",
+                          sumsInsured: "",
+                          sumsInsuredCurrency: "USD",
+                        });
                         setCrewPositionOther("");
                       }}
                       className="text-gray-600 hover:text-gray-800 hover:bg-gray-100 h-8 px-4 text-xs font-medium rounded-md"
@@ -689,12 +696,17 @@ export function PilotDetailsStep({
                         }
                         
                         if (tempCrewMember.name && tempCrewMember.age && tempCrewMember.position) {
-                          setCrewMembers(prev => [...prev, { 
-                            name: tempCrewMember.name, 
-                            age: tempCrewMember.age, 
-                            position: finalPosition 
-                          }]);
-                          setTempCrewMember({ name: "", age: "", position: "" });
+                          setCrewMembers(prev => [
+                            ...prev,
+                            { ...tempCrewMember, position: finalPosition },
+                          ]);
+                          setTempCrewMember({
+                            name: "",
+                            age: "",
+                            position: "",
+                            sumsInsured: "",
+                            sumsInsuredCurrency: "USD",
+                          });
                           setCrewPositionOther("");
                           setShowCrewMemberForm(false);
                         }

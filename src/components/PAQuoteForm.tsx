@@ -163,15 +163,15 @@ export function PAQuoteForm({
       generalClaimsInfo
     };
 
-    const placement: Omit<Placement, "id"> = {
+    const placement = {
       brokerName: "Current Broker",
       insuredName,
       productCode: "PA",
-      status: "DRAFT",
+      status: "draft" as const,
       submittedDate: new Date().toISOString().split("T")[0],
       lastModified: new Date().toISOString().split("T")[0],
       draftData,
-    };
+    } as Omit<Placement, "id">;
 
     onSaveDraft(placement);
   };
@@ -206,18 +206,20 @@ export function PAQuoteForm({
       generalClaimsInfo
     };
 
-    const placement: Omit<Placement, "id"> = {
+    const placement = {
       brokerName: "Current Broker",
       insuredName,
       productCode: "PA",
-      status: "PENDING",
+      status: "pending" as const,
       submittedDate: new Date().toISOString().split("T")[0],
       lastModified: new Date().toISOString().split("T")[0],
-      underwriter: selectedLineslipObj?.underwriter || "",
+      underwriter: selectedLineslipObj?.underwriters?.[0]?.name || "",
       lineslipReference: selectedLineslipObj?.reference || "",
-      contactPerson: selectedContactObj?.name || "",
+      contactPerson: selectedContactObj
+        ? `${selectedContactObj.firstName} ${selectedContactObj.lastName}`.trim()
+        : "",
       draftData,
-    };
+    } as Omit<Placement, "id">;
 
     onSubmit(placement);
   };
@@ -350,7 +352,7 @@ export function PAQuoteForm({
                       <SelectContent>
                         {contacts.map((contact) => (
                           <SelectItem key={contact.id} value={contact.id}>
-                            {contact.name} - {contact.company}
+                            {`${contact.firstName} ${contact.lastName}`} - {contact.company}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -368,7 +370,7 @@ export function PAQuoteForm({
                           .filter((l) => l.productCode === "PA")
                           .map((lineslip) => (
                             <SelectItem key={lineslip.id} value={lineslip.id}>
-                              {lineslip.reference} - {lineslip.underwriter}
+                              {lineslip.reference} - {lineslip.underwriters?.[0]?.name || ""}
                             </SelectItem>
                           ))}
                       </SelectContent>

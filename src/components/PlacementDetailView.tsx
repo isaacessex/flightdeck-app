@@ -514,7 +514,7 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`relative flex items-center gap-1.5 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-colors duration-150 ${
                     isActive
                       ? "text-[#004225]"
@@ -866,7 +866,7 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
                         <Clock className="size-5 text-[#004225]" />
                         <span className="text-base font-semibold text-gray-700">Waiting for broker to accept quotation</span>
                       </div>
-                      {false && placement.quotes.map((quote) => {
+                      {false && placement.quotes!.map((quote) => {
                         const qcs: Record<string, string> = { USD: "$", GBP: "£", EUR: "€" };
                         const qsym = qcs[quote.currency] || "$";
                         const qFleet: any[] = placement.draftData?.fleet || [];
@@ -1259,7 +1259,7 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
                         <FileCheck className="size-4 text-blue-600" />
                         <h4 className="text-sm font-semibold text-gray-900">Quote Received</h4>
                       </div>}
-                      {false && placement.quotes.map((quote) => {
+                      {false && placement.quotes!.map((quote) => {
                         const qcs2: Record<string, string> = { USD: "$", GBP: "£", EUR: "€" };
                         const qsym2 = qcs2[quote.currency] || "$";
                         const qFleet2: any[] = placement.draftData?.fleet || [];
@@ -2946,6 +2946,8 @@ function PilotsDetailsTab({ placement }: { placement: Placement }) {
   const isHullDeductible = placement.productCode === "HD";
   const isLOL = placement.productCode === "LOL";
   const isPA = placement.productCode === "PA";
+  const isUAS = placement.productCode === "UAS";
+  const aircraftLabel = isUAS ? "Drone" : "Aircraft";
   const fleet = placement.draftData?.fleet || [];
   const lolPilots = placement.draftData?.lolPilots || [];
   

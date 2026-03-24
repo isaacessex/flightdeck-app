@@ -333,7 +333,7 @@ function resolvePlaceholder(tag: string, placement: Placement, lineslip: Linesli
       if (productCode !== "HW") return "";
       // Robust check: treat string "false" and boolean false as excluded (handles KV round-trips)
       const rawVal = quote?.confiscationIncluded;
-      const included = rawVal === true || rawVal === "true";
+      const included = rawVal === true || String(rawVal) === "true";
       const verb = included ? "Including" : "Excluding";
       return `${verb} confiscation, nationalisation, seizure, restraint, detention, appropriation, requisition for title or use by or under the order of the government(s) of aircraft registry (whether civil, military or de facto) or public or local authority - exclusion (b) of LSW555D deleted`;
     })(),
@@ -2624,7 +2624,7 @@ function resolveSlipSections(placement: Placement, lineslip: Lineslip | undefine
          /Coverage 1\(b\) of Section III of AVN1C amended to include coverage for liability arising out of the ownership, maintenance, operation or use of the Aircraft\.\s*\n?\n?/g,
         ].forEach(re => { c = c.replace(re, ""); });
         const rawConf = quote?.confiscationIncluded;
-        const confIncluded = rawConf === true || rawConf === "true";
+        const confIncluded = rawConf === true || String(rawConf) === "true";
         c = c.replace(
           /(Including|Excluding)(\s+confiscation,\s*nationalisation,\s*seizure,\s*restraint,\s*detention,\s*appropriation,\s*requisition[\s\S]*?exclusion\s*\(b\)\s*of\s*LSW555D\s*deleted)/gi,
           `${confIncluded ? "Including" : "Excluding"}$2`
@@ -2973,7 +2973,7 @@ export function SlipDocumentViewer({ placement, lineslip, documentType, embedded
         // If the lineslip editor saved literal "Including/Excluding confiscation..." text
         // instead of {{confiscation_text}}, replace it with the correct verb from the quote.
         const rawConf = quote?.confiscationIncluded;
-        const confIncluded = rawConf === true || rawConf === "true";
+        const confIncluded = rawConf === true || String(rawConf) === "true";
         const correctVerb = confIncluded ? "Including" : "Excluding";
         c = c.replace(
           /(Including|Excluding)(\s+confiscation,\s*nationalisation,\s*seizure,\s*restraint,\s*detention,\s*appropriation,\s*requisition[\s\S]*?exclusion\s*\(b\)\s*of\s*LSW555D\s*deleted)/gi,

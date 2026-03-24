@@ -266,7 +266,7 @@ export function ReviewStep({
       const eligibleBindersList = getEligibleBinders ? getEligibleBinders(productCode) : [];
       const hasLineslipSelected = eligibleLineslips.length > 0 && selectedLineslips[productCode];
       const hasBinderSelected = eligibleBindersList.length > 0 && selectedBinders?.[productCode];
-      const hasBuilderPanel = binderBuilderSelections?.[productCode]?.length > 0;
+      const hasBuilderPanel = (binderBuilderSelections?.[productCode]?.length ?? 0) > 0;
       return hasLineslipSelected || hasBinderSelected || hasBuilderPanel;
     });
 
@@ -497,7 +497,7 @@ export function ReviewStep({
                         </div>
                         <div>
                           <p className="text-gray-500 text-[10px] mb-0.5">Position</p>
-                          <p className="text-gray-900 font-medium text-xs">{pilot.position || '—'}</p>
+                          <p className="text-gray-900 font-medium text-xs">{(pilot as any).position || '—'}</p>
                         </div>
                         <div>
                           <p className="text-gray-500 text-[10px] mb-0.5">Age</p>
@@ -1566,7 +1566,7 @@ export function ReviewStep({
               const eligibleBindersList = getEligibleBinders ? getEligibleBinders(productCode) : [];
               const hasLineslip = eligibleLineslips.length > 0 && selectedLineslips[productCode];
               const hasBinder = eligibleBindersList.length > 0 && selectedBinders?.[productCode];
-              const hasBuilderPanel = binderBuilderSelections?.[productCode]?.length > 0;
+              const hasBuilderPanel = (binderBuilderSelections?.[productCode]?.length ?? 0) > 0;
               return hasLineslip || hasBinder || hasBuilderPanel;
             }) || isSubmitting}
             className="bg-[#004225] hover:bg-[#003319] text-white font-medium rounded-md px-10 py-2.5 text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
