@@ -699,7 +699,9 @@ export function ReviewStep({
                           <p className="text-slate-500 text-[10px] mb-0.5">Hull Deductible</p>
                           <p className="text-slate-900 font-semibold uppercase text-xs whitespace-nowrap overflow-hidden text-ellipsis">
                             {aircraft.hullDeductible && aircraft.hullDeductible !== "" && !isNaN(parseFloat(aircraft.hullDeductible.toString().replace(/,/g, ""))) 
-                              ? `${aircraft.hullDeductibleCurrency} ${parseFloat(aircraft.hullDeductible.toString().replace(/,/g, "")).toLocaleString()}` 
+                              ? aircraft.aircraftType === 'rotary-wing'
+                                ? `${aircraft.hullDeductible}%`
+                                : `${aircraft.hullDeductibleCurrency} ${parseFloat(aircraft.hullDeductible.toString().replace(/,/g, "")).toLocaleString()}`
                               : "—"}
                           </p>
                         </div>
