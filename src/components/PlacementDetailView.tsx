@@ -2613,7 +2613,7 @@ function AircraftDetailsTab({ placement }: { placement: Placement }) {
                             : <span className="text-gray-300">—</span>}
                         </td>
                         {!isPA && !isHullDeductible && <td className="px-2 py-2.5 text-xs text-gray-900 font-semibold text-right whitespace-nowrap">
-                          {aircraft.aircraftAgreedValueCurrency} {Number(aircraft.aircraftAgreedValue || 0).toLocaleString()}
+                          {aircraft.aircraftAgreedValueCurrency} {Number((aircraft.aircraftAgreedValue || '0').toString().replace(/,/g, '') || 0).toLocaleString()}
                         </td>}
                         {isHullDeductible && <td className="px-2 py-2.5 text-xs text-gray-900 font-semibold text-right whitespace-nowrap">
                           {aircraft.standardDeductibleCurrency || 'USD'} {Number((aircraft.standardDeductible || '0').toString().replace(/,/g, '') || 0).toLocaleString()}
@@ -2630,7 +2630,7 @@ function AircraftDetailsTab({ placement }: { placement: Placement }) {
                               ? '10%'
                               : aircraft.aircraftType?.toLowerCase() === 'rotary-wing' 
                                 ? `${aircraft.hullDeductible || '0'}%`
-                                : `${aircraft.hullDeductibleCurrency} ${Number(aircraft.hullDeductible || 0).toLocaleString()}`
+                                : `${aircraft.hullDeductibleCurrency} ${Number((aircraft.hullDeductible || '0').toString().replace(/,/g, '') || 0).toLocaleString()}`
                             }
                           </div>
                           <div className="text-[10px] text-gray-500 font-medium mt-0.5">
@@ -2644,7 +2644,7 @@ function AircraftDetailsTab({ placement }: { placement: Placement }) {
                         </td>}
                         {!isHullWar && !isPA && !isHullDeductible && <td className="px-2 py-2.5 text-xs text-gray-900 font-semibold text-right whitespace-nowrap">
                           <div>
-                            {aircraft.liabilityLimitCurrency} {Number(aircraft.liabilityLimit || 0).toLocaleString()}
+                            {aircraft.liabilityLimitCurrency} {Number((aircraft.liabilityLimit || '0').toString().replace(/,/g, '') || 0).toLocaleString()}
                           </div>
                           {aircraft.liabilityType && !isUAS && (
                             <div className="text-[10px] text-gray-500 font-medium mt-0.5">

@@ -4826,8 +4826,10 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
                         <div className="px-4 py-3.5" style={{ width: '130px' }}>
                           <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Deductible</p>
                           <p className="text-xs font-semibold text-slate-900">
-                            {aircraft.hullDeductible && aircraft.hullDeductible !== "" && !isNaN(parseFloat(aircraft.hullDeductible.replace(/,/g, "")))
-                              ? `${aircraft.hullDeductibleCurrency} ${parseFloat(aircraft.hullDeductible.replace(/,/g, "")).toLocaleString()}`
+                            {aircraft.hullDeductible && aircraft.hullDeductible !== "" && !isNaN(parseFloat(aircraft.hullDeductible.toString().replace(/,/g, "")))
+                              ? aircraft.aircraftType === 'rotary-wing'
+                                ? `${aircraft.hullDeductible}%`
+                                : `${aircraft.hullDeductibleCurrency} ${parseFloat(aircraft.hullDeductible.replace(/,/g, "")).toLocaleString()}`
                               : "—"}
                           </p>
                         </div>
