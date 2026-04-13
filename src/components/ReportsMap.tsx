@@ -5,8 +5,6 @@ import { Badge } from "./ui/badge";
 import {
   Globe,
   MapPin,
-  Plane,
-  DollarSign,
   ChevronDown,
   ChevronUp,
   AlertCircle,
@@ -138,7 +136,6 @@ export function ReportsMap({ placements, lineslips }: ReportsMapProps) {
   const totalPlacements = regionStats.reduce((s, r) => s + r.placementCount, 0);
   const totalLineslips = regionStats.reduce((s, r) => s + r.lineslipCount, 0);
   const totalValue = regionStats.reduce((s, r) => s + r.totalValue, 0);
-  const topRegion = regionStats[0];
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);

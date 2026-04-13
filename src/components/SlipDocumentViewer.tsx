@@ -232,7 +232,6 @@ function resolvePlaceholder(tag: string, placement: Placement, lineslip: Linesli
     "{{period_to}}": formatDate(d.expiryDate),
     "{{period_text}}": (() => {
       const isQuoteStage = ["DRAFT", "COMPLIANCE", "PENDING", "QUOTED"].includes((placement.status || "").toUpperCase());
-      const validUntil = quote?.quoteValidUntil ? formatDate(quote.quoteValidUntil) : "TBD";
       if (isQuoteStage) {
         return `Subject Approval, No Risk`;
       }
@@ -333,7 +332,7 @@ function resolvePlaceholder(tag: string, placement: Placement, lineslip: Linesli
       if (productCode !== "HW") return "";
       // Robust check: treat string "false" and boolean false as excluded (handles KV round-trips)
       const rawVal = quote?.confiscationIncluded;
-      const included = rawVal === true || rawVal === "true";
+      const included = rawVal === true || String(rawVal) === "true";
       const verb = included ? "Including" : "Excluding";
       return `${verb} confiscation, nationalisation, seizure, restraint, detention, appropriation, requisition for title or use by or under the order of the government(s) of aircraft registry (whether civil, military or de facto) or public or local authority - exclusion (b) of LSW555D deleted`;
     })(),
@@ -926,7 +925,6 @@ function generateSlipPDF(
         }
 
         const currency = (placement.draftData || {}).aircraftAgreedValueCurrency || "USD";
-        const currSym = currency === "GBP" ? "GBP " : currency === "EUR" ? "EUR " : "USD ";
         const fmtDate = (ds: string | undefined) => {
           if (!ds) return "N/A";
           try {
@@ -1446,6 +1444,58 @@ function generateSlipPDF(
           contentY += ROW_H;
         }
 
+        // ── Spares row (if applicable) ──
+        const sparesP = qt.sparesPremium || 0;
+        const sparesInHull = qt.sparesIncludedInHull || false;
+        const sparesRt = qt.sparesRate || 0;
+        const sparesVal = parseFloat(String(dd.aircraftSparesAmount || "0").replace(/,/g, "")) || 0;
+        if (sparesP > 0 && !sparesInHull) {
+          if (contentY + ROW_H + 1 > PAGE_H - MARGIN_BOTTOM) {
+            addFooter(); doc.addPage(); pageNum++;
+            y = MARGIN_TOP; addPageHeader(); contentY = y;
+            sectionHadPageBreak = true;
+            drawPremHeader();
+          }
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(TABLE_FONT);
+          doc.setTextColor(...DARK_GRAY);
+          doc.text("Spares", TABLE_X, contentY);
+          doc.text(cur, getColX(1), contentY);
+          if (sparesVal > 0) doc.text(fmtNum(sparesVal), getColX(2) + COL_WIDTHS[2] - 2, contentY, { align: "right" });
+          if (sparesRt > 0) doc.text(fmtRate(sparesRt), getColX(3) + COL_WIDTHS[3] - 2, contentY, { align: "right" });
+          const hullColIdx = 4;
+          doc.text(fmtNum(sparesP), getColX(hullColIdx) + COL_WIDTHS[hullColIdx] - 2, contentY, { align: "right" });
+          const sparesOrder = sparesP * (parseFloat(ohPctLocal) / 100);
+          totalOrderPrem += sparesOrder;
+          const sparesOrderColIdx = isHullWar ? 5 : 6;
+          doc.text(fmtNum(sparesOrder), getColX(sparesOrderColIdx) + COL_WIDTHS[sparesOrderColIdx] - 2, contentY, { align: "right" });
+          contentY += ROW_H;
+        }
+
+        // ── PPH row (if applicable) ──
+        const pphP = qt.pphPremium || 0;
+        if (pphP > 0) {
+          if (contentY + ROW_H + 1 > PAGE_H - MARGIN_BOTTOM) {
+            addFooter(); doc.addPage(); pageNum++;
+            y = MARGIN_TOP; addPageHeader(); contentY = y;
+            sectionHadPageBreak = true;
+            drawPremHeader();
+          }
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(TABLE_FONT);
+          doc.setTextColor(...DARK_GRAY);
+          doc.text("PPH", TABLE_X, contentY);
+          doc.text(cur, getColX(1), contentY);
+          const pphLiabColIdx = isHullWar ? 4 : 5;
+          if (!isHullWar) doc.text(fmtNum(pphP), getColX(pphLiabColIdx) + COL_WIDTHS[pphLiabColIdx] - 2, contentY, { align: "right" });
+          else doc.text(fmtNum(pphP), getColX(4) + COL_WIDTHS[4] - 2, contentY, { align: "right" });
+          const pphOrder = pphP * (parseFloat(ohPctLocal) / 100);
+          totalOrderPrem += pphOrder;
+          const pphOrderColIdx = isHullWar ? 5 : 6;
+          doc.text(fmtNum(pphOrder), getColX(pphOrderColIdx) + COL_WIDTHS[pphOrderColIdx] - 2, contentY, { align: "right" });
+          contentY += ROW_H;
+        }
+
         // ── Totals separator line ──
         contentY += LINE_H * 0.8;
         doc.setDrawColor(...BLACK);
@@ -1470,12 +1520,14 @@ function generateSlipPDF(
         // Aircraft value total
         doc.text(fmtNum(totalAircraftValue), getColX(2) + COL_WIDTHS[2] - 2, contentY, { align: "right" });
 
-        // Hull / Hull War premium total
-        doc.text(fmtNum(totalHullPrem), getColX(4) + COL_WIDTHS[4] - 2, contentY, { align: "right" });
+        // Hull / Hull War premium total (include spares if applicable)
+        const totalHullWithSpares = totalHullPrem + (sparesP > 0 && !sparesInHull ? sparesP : 0);
+        doc.text(fmtNum(totalHullWithSpares), getColX(4) + COL_WIDTHS[4] - 2, contentY, { align: "right" });
 
         if (!isHullWar) {
-          // Liability premium total (not applicable for HW)
-          doc.text(fmtNum(totalLiabPrem), getColX(5) + COL_WIDTHS[5] - 2, contentY, { align: "right" });
+          // Liability premium total + PPH (not applicable for HW)
+          const totalLiabWithPph = totalLiabPrem + pphP;
+          doc.text(fmtNum(totalLiabWithPph), getColX(5) + COL_WIDTHS[5] - 2, contentY, { align: "right" });
         }
 
         // Order premium total — column index shifts for HW (5 vs 6)
@@ -1704,19 +1756,19 @@ function generateSlipPDF(
 
           const typeLabel = formatTypeKey(typeKey);
 
-          // PIC data
-          const picTotal = hours.picTotalHours || hours.picTotalHoursOther || "";
-          const picEngine = hours.picEngineHours || hours.picEngineHoursOther || "";
-          const picMakeModel = hours.picMakeModelHours || hours.picMakeModelHoursOther || "";
+          // PIC data — resolve "other" to the custom value
+          const picTotal = hours.picTotalHours === "other" ? (hours.picTotalHoursOther || "") : (hours.picTotalHours || "");
+          const picEngine = hours.picEngineHours === "other" ? (hours.picEngineHoursOther || "") : (hours.picEngineHours || "");
+          const picMakeModel = hours.picMakeModelHours === "other" ? (hours.picMakeModelHoursOther || "") : (hours.picMakeModelHours || "");
           if (picTotal || picEngine || picMakeModel) {
             drawOpwTable("PIC", typeLabel, picTotal, picEngine, picMakeModel);
             hasAnyData = true;
           }
 
-          // Co-Pilot data
-          const coTotal = hours.coPilotTotalHours || hours.coPilotTotalHoursOther || "";
-          const coEngine = hours.coPilotEngineHours || hours.coPilotEngineHoursOther || "";
-          const coMakeModel = hours.coPilotMakeModelHours || hours.coPilotMakeModelHoursOther || "";
+          // Co-Pilot data — resolve "other" to the custom value
+          const coTotal = hours.coPilotTotalHours === "other" ? (hours.coPilotTotalHoursOther || "") : (hours.coPilotTotalHours || "");
+          const coEngine = hours.coPilotEngineHours === "other" ? (hours.coPilotEngineHoursOther || "") : (hours.coPilotEngineHours || "");
+          const coMakeModel = hours.coPilotMakeModelHours === "other" ? (hours.coPilotMakeModelHoursOther || "") : (hours.coPilotMakeModelHours || "");
           if (coTotal || coEngine || coMakeModel) {
             drawOpwTable("CO-PILOT", typeLabel, coTotal, coEngine, coMakeModel);
             hasAnyData = true;
@@ -1916,11 +1968,7 @@ function generateEOCCoveringLetterPDF(
 ): jsPDF {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const d = placement.draftData || {};
-  const quote = placement.quotes?.[placement.quotes.length - 1];
   const isReinsurance = d.placementType === "reinsurance";
-  const currency = d.aircraftAgreedValueCurrency || quote?.currency || "USD";
-  const currSym = currency === "GBP" ? "GBP " : currency === "EUR" ? "EUR " : "USD ";
-
   const productNames: Record<string, string> = {
     HL: "Hull & Liability", HW: "Hull War", PA: "Personal Accident",
     LOL: "Loss of Licence", HD: "Hull Deductible", UAS: "Drone Insurance",
@@ -1957,11 +2005,6 @@ function generateEOCCoveringLetterPDF(
   const insuredName = placement.insuredName || d.insuredName || "TBD";
   const reinsuredName = d.reinsuredName || "";
   const insuredAddress = [d.insuredAddressLine1, d.insuredCity, d.insuredPostcode, d.insuredCountry].filter(Boolean).join(", ");
-  const reference = placement.reference || "DRAFT";
-  const facilityRef = placement.facilityRef || "";
-  const inceptionDate = formatDate(d.inceptionDate || placement.inceptionDate);
-  const expiryDate = formatDate(d.expiryDate);
-  const brokerName = placement.submittedByName || placement.brokerName || "TBD";
   // brokerCompany = the PLACING broker's company (Lockton). Do NOT fall back to
   // placement.brokerCompany which is the producing broker's company.
   const brokerCompany = placement.submittedByCompany || currentUser?.company || "";
@@ -1972,16 +2015,6 @@ function generateEOCCoveringLetterPDF(
   const totalCommission = isReinsurance
     ? (lineslip?.reinsuranceCompositeBrokerage || 0)
     : (lineslip?.insuranceCompositeBrokerage || 0);
-  const boundByName = placement.boundByName || quote?.underwriterName || "TBD";
-  const boundByCompany = placement.boundByCompany || quote?.underwriterCompany || "";
-  const totalPremium = quote?.premium || 0;
-  const fleet = d.fleet || [];
-
-  const hullTotal = fleet.reduce((sum: number, a: any) => {
-    const raw = a.aircraftAgreedValue || a.agreedValue;
-    const val = typeof raw === "string" ? Number(raw.replace(/,/g, "")) : (raw || 0);
-    return sum + val;
-  }, 0);
 
   // Helper to add a bold underlined section heading (reinsurance style)
   const addSectionHeading = (text: string) => {
@@ -2624,7 +2657,7 @@ function resolveSlipSections(placement: Placement, lineslip: Lineslip | undefine
          /Coverage 1\(b\) of Section III of AVN1C amended to include coverage for liability arising out of the ownership, maintenance, operation or use of the Aircraft\.\s*\n?\n?/g,
         ].forEach(re => { c = c.replace(re, ""); });
         const rawConf = quote?.confiscationIncluded;
-        const confIncluded = rawConf === true || rawConf === "true";
+        const confIncluded = rawConf === true || String(rawConf) === "true";
         c = c.replace(
           /(Including|Excluding)(\s+confiscation,\s*nationalisation,\s*seizure,\s*restraint,\s*detention,\s*appropriation,\s*requisition[\s\S]*?exclusion\s*\(b\)\s*of\s*LSW555D\s*deleted)/gi,
           `${confIncluded ? "Including" : "Excluding"}$2`
@@ -2817,10 +2850,6 @@ export function SlipDocumentViewer({ placement, lineslip, documentType, embedded
 
   // Build document date string
   const quote = placement.quotes?.[placement.quotes.length - 1];
-  const docDateStr = quote
-    ? new Date(quote.submittedDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase().replace(/ /g, "")
-    : new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase().replace(/ /g, "");
-
   // Sanitise insured name for file/display (replace spaces with hyphens, strip special chars)
   const sanitisedInsured = (placement.insuredName || "Insured").replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "-");
 
@@ -2973,7 +3002,7 @@ export function SlipDocumentViewer({ placement, lineslip, documentType, embedded
         // If the lineslip editor saved literal "Including/Excluding confiscation..." text
         // instead of {{confiscation_text}}, replace it with the correct verb from the quote.
         const rawConf = quote?.confiscationIncluded;
-        const confIncluded = rawConf === true || rawConf === "true";
+        const confIncluded = rawConf === true || String(rawConf) === "true";
         const correctVerb = confIncluded ? "Including" : "Excluding";
         c = c.replace(
           /(Including|Excluding)(\s+confiscation,\s*nationalisation,\s*seizure,\s*restraint,\s*detention,\s*appropriation,\s*requisition[\s\S]*?exclusion\s*\(b\)\s*of\s*LSW555D\s*deleted)/gi,

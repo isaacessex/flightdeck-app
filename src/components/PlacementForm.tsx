@@ -2,9 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Placement, Lineslip, Contact } from "../App";
 import type { Binder } from "../App";
 import { ContactForm } from "./ContactForm";
-import { ClaimsHistoryModal } from "./ClaimsHistoryModal";
-import { HullWarReviewStep } from "./HullWarReviewStep";
-import { LOLPilotDetailsStep } from "./LOLPilotDetailsStep";
 import { HullWarClaimsHistoryStep } from "./HullWarClaimsHistoryStep";
 import { PilotDetailsStep } from "./PilotDetailsStep";
 import { SubLimitsClausesStep } from "./SubLimitsClausesStep";
@@ -15,7 +12,6 @@ import { CoverageDetailsStep } from "./CoverageDetailsStep";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -24,10 +20,10 @@ import { Checkbox } from "./ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
-import { Plane, Shield, Heart, Radar, Check, ChevronsUpDown, ChevronDown, X, Plus, Info, Upload, FileText, DollarSign, Trash2, FileUp, Pencil, Search, ExternalLink, Download } from "lucide-react";
+import { Plane, Shield, Heart, Radar, Check, ChevronsUpDown, X, Plus, Info, FileText, DollarSign, Trash2, FileUp, Pencil, Search, ExternalLink, Download } from "lucide-react";
 import { toast } from "sonner";
 import { lookupAircraft } from "../utils/jetapi";
-import { getTypeAbbreviation, formatNumberWithCommas, removeCommas, formatDateToUK } from "../utils/placementFormHelpers";
+import { getTypeAbbreviation, removeCommas, formatDateToUK } from "../utils/placementFormHelpers";
 import { Aircraft, CrewMember, LOLPilot, AdditionalInsured, ClaimHistory } from "../types/placementForm";
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { countries as countriesWithRegions } from "../utils/countries";
@@ -42,10 +38,9 @@ interface PlacementFormProps {
   onAddContact?: (contactData: Omit<Contact, "id" | "createdDate" | "lastModified">) => void;
   draftPlacement?: Placement; // Optional draft placement to edit
   currentDraftId?: string | null; // Track the current draft ID from App.tsx
-  onShowPAForm?: () => void; // Callback to show PA form
 }
 
-export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, binders = [], contacts, onAddContact, draftPlacement, currentDraftId, onShowPAForm }: PlacementFormProps) {
+export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, binders = [], contacts, onAddContact, draftPlacement, currentDraftId }: PlacementFormProps) {
   const [currentStep, setCurrentStep] = useState(0); // 0 = coverage selection, 1-5 = actual steps
   const [selectedMainCoverages, setSelectedMainCoverages] = useState<string[]>([]);
   const [placementType, setPlacementType] = useState<"insurance" | "reinsurance" | null>(null);
@@ -124,9 +119,6 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
     description: ""
   });
   
-  // Sub-coverage dropdowns state
-  const [openSubCoverageDropdowns, setOpenSubCoverageDropdowns] = useState<Record<string, boolean>>({});
-
   // Track if draft has been loaded to prevent autosave from resetting step
   const [hasLoadedDraft, setHasLoadedDraft] = useState(false);
 
@@ -189,9 +181,6 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
   const [highlightInceptionDate, setHighlightInceptionDate] = useState(false);
   const [reinsuredCountryComboboxOpen, setReinsuredCountryComboboxOpen] = useState(false);
   
-  // Placement Summary expand/collapse states
-  const [showAllLolPilots, setShowAllLolPilots] = useState(false);
-
   // Step 3 fields - Aircraft Details
   const [registration, setRegistration] = useState("");
   const [aircraftType, setAircraftType] = useState("");
@@ -232,8 +221,7 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
   
   // JetAPI aircraft lookup states
   const [isLookingUpAircraft, setIsLookingUpAircraft] = useState(false);
-  const [aircraftLookupError, setAircraftLookupError] = useState("");
-  
+  const [, setAircraftLookupError] = useState("");
   // Hull Deductible specific fields
   const [standardDeductible, setStandardDeductible] = useState("");
   const [standardDeductibleCurrency, setStandardDeductibleCurrency] = useState("USD");
@@ -297,7 +285,6 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
   // Step 6 - Additional Information
   const [generalClaimsInfo, setGeneralClaimsInfo] = useState<"yes" | "no" | "">("");
   const [claimsDetails, setClaimsDetails] = useState("");
-  const [additionalNotes, setAdditionalNotes] = useState("");
   const [supportingDocuments, setSupportingDocuments] = useState<File[]>([]);
   
   // Lineslip selection - one lineslip per product
@@ -1400,7 +1387,6 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
       ],
     },
   ];
-  const sanctionedCountries = sanctionedCountryGroups.flatMap(g => g.countries);
 
   // EEA Countries
   const eeaCountries = [
@@ -1449,25 +1435,6 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
       eeaCountry.toLowerCase().includes(country.toLowerCase())
     );
   };
-
-  const [formData, setFormData] = useState({
-    brokerName: "Direct",
-    insuredName: "",
-    aircraftType: "",
-    productCode: "HL",
-    coverageType: "Hull & Liability",
-    hullValue: "",
-    liability: "",
-    inceptionDate: "",
-    aircraftManufacturer: "",
-    yearOfManufacture: "",
-    serialNumber: "",
-    homeBase: "",
-    primaryUse: "",
-    annualFlightHours: "",
-    pilotExperience: "",
-    additionalInfo: "",
-  });
 
   const coverageOptions = [
     {
@@ -2897,7 +2864,7 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
     setAircraftAgreedValueCurrency(aircraft.aircraftAgreedValueCurrency);
     setLiabilityLimit(aircraft.liabilityLimit);
     setLiabilityLimitCurrency(aircraft.liabilityLimitCurrency);
-    setLiabilityType(aircraft.liabilityType || "CSL");
+    setLiabilityType((aircraft.liabilityType || "CSL") as "CSL" | "TPL");
     setSumsReinsured(aircraft.sumsReinsured);
     setSumsReinsuredCurrency(aircraft.sumsReinsuredCurrency);
     setCrewSumsReinsuredPerSeat(aircraft.crewSumsReinsuredPerSeat || "");
@@ -2966,12 +2933,21 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
       aircraftAgreedValueCurrency,
       liabilityLimit,
       liabilityLimitCurrency,
+      liabilityType,
       sumsReinsured: calculatedSumsReinsured,
       sumsReinsuredCurrency: selectedMainCoverages.includes('HD') ? standardDeductibleCurrency : sumsReinsuredCurrency,
       standardDeductible,
       standardDeductibleCurrency,
       deductibleBuydown,
       deductibleBuydownCurrency,
+      crewSumsReinsuredPerSeat: crewSumsReinsuredPerSeat || "",
+      crewSumsReinsuredCurrency: crewSumsReinsuredCurrency || "USD",
+      crewTotalPerOccurrence: crewTotalPerOccurrence || "",
+      crewTotalPerOccurrenceCurrency: crewTotalPerOccurrenceCurrency || "USD",
+      paxSumsReinsuredPerSeat: paxSumsReinsuredPerSeat || "",
+      paxSumsReinsuredCurrency: paxSumsReinsuredCurrency || "USD",
+      paxTotalPerOccurrence: paxTotalPerOccurrence || "",
+      paxTotalPerOccurrenceCurrency: paxTotalPerOccurrenceCurrency || "USD",
       standardUses,
       specialUses,
       specialUsesOther,
@@ -4216,7 +4192,7 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
                         </Label>
                         <div className="flex gap-2">
                           {!isUASProduct && (
-                            <Select value={liabilityType} onValueChange={setLiabilityType}>
+                            <Select value={liabilityType} onValueChange={(v) => setLiabilityType(v as "CSL" | "TPL")}>
                               <SelectTrigger className="w-64 !h-10 bg-white border-gray-300 text-slate-900 focus:border-[#004225] focus:ring-[#004225]/20 rounded-lg text-sm">
                                 <SelectValue />
                               </SelectTrigger>
@@ -5571,8 +5547,6 @@ export function PlacementForm({ onSubmit, onCancel, onSaveDraft, lineslips, bind
         namedPilotsDocument={namedPilotsDocument}
         setNamedPilotsDocument={setNamedPilotsDocument}
         fleet={fleet}
-        minRequiredHours={minRequiredHours}
-        setMinRequiredHours={setMinRequiredHours}
         opwHours={opwHours}
         setOpwHours={setOpwHours}
         crewCoverageType={crewCoverageType}

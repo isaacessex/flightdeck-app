@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Plane, Calendar, MapPin, Clock, User, ExternalLink, AlertTriangle, ChevronLeft, ChevronRight, Info, Navigation, Radio, Building2 } from "lucide-react";
+import { X, Plane, User, ExternalLink, AlertTriangle, ChevronLeft, ChevronRight, Info, Navigation, Radio } from "lucide-react";
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 
 interface AircraftDetailsModalProps {
@@ -10,7 +10,7 @@ interface AircraftDetailsModalProps {
   isUAS?: boolean;
 }
 
-export function AircraftDetailsModal({ aircraft, onClose, cachedData, isHullWar = false, isUAS = false }: AircraftDetailsModalProps) {
+export function AircraftDetailsModal({ aircraft, onClose, cachedData, isHullWar = false, isUAS: _isUAS = false }: AircraftDetailsModalProps) {
   const [jetApiData, setJetApiData] = useState<any>(cachedData || null);
   const [loading, setLoading] = useState(!cachedData);
   const [error, setError] = useState<string | null>(null);

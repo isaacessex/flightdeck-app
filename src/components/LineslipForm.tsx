@@ -1843,8 +1843,8 @@ export function LineslipForm({ lineslip, existingLineslips, contacts = [], mode 
   const [maxLiabilityLimitFixedWing, setMaxLiabilityLimitFixedWing] = useState(lineslip?.maxLiabilityLimitFixedWing?.toString() || "");
   const [maxHullLimitRotaryWing, setMaxHullLimitRotaryWing] = useState(lineslip?.maxHullLimitRotaryWing?.toString() || "");
   const [maxLiabilityLimitRotaryWing, setMaxLiabilityLimitRotaryWing] = useState(lineslip?.maxLiabilityLimitRotaryWing?.toString() || "");
-  const [maxHullLimit, setMaxHullLimit] = useState(lineslip?.maxHullLimit?.toString() || "");
-  const [maxLiabilityLimit, setMaxLiabilityLimit] = useState(lineslip?.maxLiabilityLimit?.toString() || "");
+  const [maxHullLimit, setMaxHullLimit] = useState("");
+  const [maxLiabilityLimit, setMaxLiabilityLimit] = useState("");
   const [maximumAircraftValue, setMaximumAircraftValue] = useState(lineslip?.maximumAircraftValue?.toString() || "");
   const [overallAggregate, setOverallAggregate] = useState(lineslip?.overallAggregate?.toString() || "");
   const [maxSumInsuredPerSeat, setMaxSumInsuredPerSeat] = useState(lineslip?.maxSumInsuredPerSeat?.toString() || "");
@@ -1944,20 +1944,20 @@ export function LineslipForm({ lineslip, existingLineslips, contacts = [], mode 
 
   // ── Rating Module state (binder mode only) ──
   const existingRating = (lineslip as any)?.ratingRules as BinderRating | undefined;
-  const [ratingHullFW, setRatingHullFW] = useState(existingRating?.hullRateFixedWing?.toString() || "");
-  const [ratingHullRW, setRatingHullRW] = useState(existingRating?.hullRateRotaryWing?.toString() || "");
+  const [ratingHullFW, _setRatingHullFW] = useState(existingRating?.hullRateFixedWing?.toString() || "");
+  const [ratingHullRW, _setRatingHullRW] = useState(existingRating?.hullRateRotaryWing?.toString() || "");
   const [hdRateTableFW, setHdRateTableFW] = useState<{ maxSumReinsured: number; mej: number; metp: number; setp: number }[]>(existingRating?.hdRateTableFW || []);
   const [hdRateTableRW, setHdRateTableRW] = useState<{ maxSumReinsured: number; tet: number; set: number; tep: number }[]>(existingRating?.hdRateTableRW || []);
   const [hdRateTab, setHdRateTab] = useState<"fw" | "rw">("fw");
-  const [ratingLiabilityType, setRatingLiabilityType] = useState<"per_seat" | "flat" | "percentage">(existingRating?.liabilityRateType || "per_seat");
-  const [ratingLiabilityRate, setRatingLiabilityRate] = useState(existingRating?.liabilityRate?.toString() || "");
-  const [ratingLiabilityCurrency, setRatingLiabilityCurrency] = useState(existingRating?.liabilityCurrency || "USD");
+  const [ratingLiabilityType, _setRatingLiabilityType] = useState<"per_seat" | "flat" | "percentage">(existingRating?.liabilityRateType || "per_seat");
+  const [ratingLiabilityRate, _setRatingLiabilityRate] = useState(existingRating?.liabilityRate?.toString() || "");
+  const [ratingLiabilityCurrency, _setRatingLiabilityCurrency] = useState(existingRating?.liabilityCurrency || "USD");
   const [rateTableCurrency, setRateTableCurrency] = useState(existingRating?.rateTableCurrency || "USD");
-  const [ratingWarRate, setRatingWarRate] = useState(existingRating?.warRate?.toString() || "");
+  const [ratingWarRate, _setRatingWarRate] = useState(existingRating?.warRate?.toString() || "");
   const [ratingAgeLoadings, setRatingAgeLoadings] = useState<{ fromYears: number; toYears: number; loadingPercent: number }[]>(existingRating?.ageLoadings || []);
 
-  const [ratingPaPerSeat, setRatingPaPerSeat] = useState(existingRating?.paRatePerSeat?.toString() || "");
-  const [ratingLolPerPilot, setRatingLolPerPilot] = useState(existingRating?.lolRatePerPilot?.toString() || "");
+  const [ratingPaPerSeat, _setRatingPaPerSeat] = useState(existingRating?.paRatePerSeat?.toString() || "");
+  const [ratingLolPerPilot, _setRatingLolPerPilot] = useState(existingRating?.lolRatePerPilot?.toString() || "");
   const [ratingApprovedUses, setRatingApprovedUses] = useState<string[]>(existingRating?.approvedUses || []);
 
   // ── PA Rate Table (limit bands × coverage type) ──
@@ -2178,9 +2178,9 @@ export function LineslipForm({ lineslip, existingLineslips, contacts = [], mode 
   const eocDutyOfDisclosure = eocTemplateType === "insurance" ? eocInsDutyOfDisclosure : eocReinsDutyOfDisclosure;
   const setEocDutyOfDisclosure = eocTemplateType === "insurance" ? setEocInsDutyOfDisclosure : setEocReinsDutyOfDisclosure;
 
-  const [eocCustomSubject, setEocCustomSubject] = useState(lineslip?.eocLetterData?.customSubject || "");
-  const [eocAdditionalNotes, setEocAdditionalNotes] = useState(lineslip?.eocLetterData?.additionalNotes || "");
-  const [eocClosingText, setEocClosingText] = useState(lineslip?.eocLetterData?.closingText || "");
+  const [eocCustomSubject, _setEocCustomSubject] = useState(lineslip?.eocLetterData?.customSubject || "");
+  const [eocAdditionalNotes, _setEocAdditionalNotes] = useState(lineslip?.eocLetterData?.additionalNotes || "");
+  const [eocClosingText, _setEocClosingText] = useState(lineslip?.eocLetterData?.closingText || "");
 
   // ── Claims Document configuration ──
   const [claimsContactName, setClaimsContactName] = useState(lineslip?.claimsDocData?.claimsContactName || "");

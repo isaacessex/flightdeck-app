@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Checkbox } from "./ui/checkbox";
 import { Plane, Plus, Trash2, Upload, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import React from "react";
 import { Aircraft, CrewMember } from "../types/placementForm";
 
 interface OpwHoursType {
@@ -34,17 +35,15 @@ interface PilotDetailsStepProps {
   namedPilotsDocument: File | null;
   setNamedPilotsDocument: (value: File | null) => void;
   fleet: Aircraft[];
-  minRequiredHours: Record<string, { totalHours: string; typeHours: string }>;
-  setMinRequiredHours: (value: Record<string, { totalHours: string; typeHours: string }>) => void;
   opwHours: Record<string, OpwHoursType>;
-  setOpwHours: (value: Record<string, OpwHoursType>) => void;
+  setOpwHours: React.Dispatch<React.SetStateAction<Record<string, OpwHoursType>>>;
   crewCoverageType: string;
   crewMembers: CrewMember[];
-  setCrewMembers: (value: CrewMember[]) => void;
+  setCrewMembers: React.Dispatch<React.SetStateAction<CrewMember[]>>;
   showCrewMemberForm: boolean;
   setShowCrewMemberForm: (value: boolean) => void;
-  tempCrewMember: { name: string; age: string; position: string };
-  setTempCrewMember: (value: { name: string; age: string; position: string }) => void;
+  tempCrewMember: { name: string; age: string; position: string; sumsInsured: string; sumsInsuredCurrency: string };
+  setTempCrewMember: React.Dispatch<React.SetStateAction<{ name: string; age: string; position: string; sumsInsured: string; sumsInsuredCurrency: string }>>;
   crewPositionOther: string;
   setCrewPositionOther: (value: string) => void;
   shouldSkipStep3: boolean;
@@ -64,8 +63,6 @@ export function PilotDetailsStep({
   namedPilotsDocument,
   setNamedPilotsDocument,
   fleet,
-  minRequiredHours,
-  setMinRequiredHours,
   opwHours,
   setOpwHours,
   crewCoverageType,
@@ -671,7 +668,7 @@ export function PilotDetailsStep({
                       variant="ghost"
                       onClick={() => {
                         setShowCrewMemberForm(false);
-                        setTempCrewMember({ name: "", age: "", position: "" });
+                        setTempCrewMember({ name: "", age: "", position: "", sumsInsured: "", sumsInsuredCurrency: "USD" });
                         setCrewPositionOther("");
                       }}
                       className="text-gray-600 hover:text-gray-800 hover:bg-gray-100 h-8 px-4 text-xs font-medium rounded-md"
@@ -692,9 +689,11 @@ export function PilotDetailsStep({
                           setCrewMembers(prev => [...prev, { 
                             name: tempCrewMember.name, 
                             age: tempCrewMember.age, 
-                            position: finalPosition 
+                            position: finalPosition,
+                            sumsInsured: tempCrewMember.sumsInsured || "",
+                            sumsInsuredCurrency: tempCrewMember.sumsInsuredCurrency || "USD",
                           }]);
-                          setTempCrewMember({ name: "", age: "", position: "" });
+                          setTempCrewMember({ name: "", age: "", position: "", sumsInsured: "", sumsInsuredCurrency: "USD" });
                           setCrewPositionOther("");
                           setShowCrewMemberForm(false);
                         }

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Lineslip, Placement, ProductCode, Contact } from "../App";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -12,7 +12,6 @@ import {
   FileDown,
   AlertCircle,
   CheckCircle2,
-  Clock,
   Layers,
   Eye,
   ChevronDown,
@@ -137,8 +136,8 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
   const [expandedLineslip, setExpandedLineslip] = useState<string | null>(null);
   const [sortField, setSortField] = useState<"reference" | "capacity" | "utilization" | "placements">("reference");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentPage] = useState(1);
+  const [, setIsProcessing] = useState(false);
   const [showCharts, setShowCharts] = useState(true);
   const [regionalView, setRegionalView] = useState<"region" | "country">("region");
   const [engineTypeView, setEngineTypeView] = useState<"fixed-wing" | "rotary-wing">("fixed-wing");
@@ -413,32 +412,6 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
       .sort((a, b) => b.capacity - a.capacity);
   }, [filteredLineslips]);
 
-  // Placement trends over time (monthly)
-  const placementTrends = useMemo(() => {
-    const monthlyData: Record<string, { monthKey: string; month: string; placements: number; bound: number }> = {};
-
-    filteredPlacements.forEach(p => {
-      const date = new Date(p.submittedDate);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = {
-          monthKey,
-          month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-          placements: 0,
-          bound: 0,
-        };
-      }
-      
-      monthlyData[monthKey].placements++;
-      if (p.status === "bound") {
-        monthlyData[monthKey].bound++;
-      }
-    });
-
-    return Object.values(monthlyData).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
-  }, [filteredPlacements]);
-
   // Placement Status Distribution
   const placementStatusDistribution = useMemo(() => {
     if (filteredPlacements.length === 0) return [];
@@ -485,7 +458,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
     if (declinedPlacements.length === 0) return [];
     
     const distribution = declinedPlacements.reduce((acc, p) => {
-      const reason = p.declinatureReason || 'Not Specified';
+      const reason = p.declineReason || 'Not Specified';
       acc[reason] = (acc[reason] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -655,17 +628,6 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
       .sort((a, b) => b.count - a.count);
   }, [aircraftChartPlacements, engineTypeView]);
 
-  // Total Bound GWP
-  const totalBoundGWP = useMemo(() => {
-    return filteredPlacements
-      .filter(p => p.status === 'bound')
-      .reduce((sum, p) => {
-        // Premium is in the quotes array - sum all quote premiums
-        const totalPremium = (p.quotes || []).reduce((qSum, q) => qSum + (q.premium || 0), 0);
-        return sum + totalPremium;
-      }, 0);
-  }, [filteredPlacements]);
-
   // GWP by Year
   const gwpByYear = useMemo(() => {
     const yearlyGWP = filteredPlacements
@@ -702,7 +664,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
         }
         acc[year][p.productCode] = (acc[year][p.productCode] || 0) + totalPremium;
         return acc;
-      }, {} as Record<string | number, Record<ProductCode, number>>);
+      }, {} as Record<string | number, Record<string, number>>);
 
     // Transform to chart data format (years as rows, products as columns)
     return Object.entries(yearlyData)
@@ -721,7 +683,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
     const codes = new Set<ProductCode>();
     filteredPlacements
       .filter(p => p.status === 'bound')
-      .forEach(p => codes.add(p.productCode));
+      .forEach(p => codes.add(p.productCode as ProductCode));
     return Array.from(codes);
   }, [filteredPlacements]);
 
@@ -830,7 +792,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
       .forEach(p => {
         const inceptionDate = p.draftData?.inceptionDate || p.inceptionDate || p.submittedDate;
         if (inceptionDate && new Date(inceptionDate).getFullYear() === currentYear) {
-          codes.add(p.productCode);
+          codes.add(p.productCode as ProductCode);
         }
       });
     return Array.from(codes);
@@ -856,7 +818,7 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
         acc[p.productCode].push(p);
       }
       return acc;
-    }, {} as Record<ProductCode, Placement[]>);
+    }, {} as Record<string, Placement[]>);
 
     return filteredLineslips.map(lineslip => {
       // Get placements for this product code
@@ -920,7 +882,6 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
   }, [lineslipDetails, sortField, sortDirection]);
 
   // Paginate results
-  const totalPages = Math.ceil(sortedLineslipDetails.length / itemsPerPage);
   const paginatedDetails = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return sortedLineslipDetails.slice(startIndex, startIndex + itemsPerPage);
@@ -952,10 +913,6 @@ export function LineslipReports({ lineslips, placements, contacts = [] }: Linesl
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
-  };
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("en-US").format(num);
   };
 
   const handleExportReport = () => {

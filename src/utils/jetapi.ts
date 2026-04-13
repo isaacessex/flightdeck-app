@@ -3,7 +3,6 @@
  * Handles aircraft lookup and data mapping for FLIGHTDECK platform
  */
 
-import { toast } from "sonner";
 import { projectId, publicAnonKey } from './supabase/info';
 import { lookupICAOType, mapToAircraftType, mapToEngineType } from './icaoLookup';
 

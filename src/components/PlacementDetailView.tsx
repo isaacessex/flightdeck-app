@@ -1,6 +1,6 @@
 import { Placement, UserRole, Lineslip, PlacementStatus, Contact } from "../App";
 import { Button } from "./ui/button";
-import { ArrowLeft, Building2, Plane, DollarSign, FileText, User, Clock, CheckCircle2, XCircle, Users, AlertTriangle, Edit, Sparkles, Globe, Shield, FileCheck, Send, Ban, Lock, Percent, ChevronLeft, Calendar, Hash, Briefcase, Download, Upload, Zap } from "lucide-react";
+import { Building2, Plane, DollarSign, FileText, User, Clock, CheckCircle2, XCircle, Users, AlertTriangle, Edit, Globe, Shield, FileCheck, Send, Ban, Lock, ChevronLeft, Download, Upload, Zap } from "lucide-react";
 import { useState } from "react";
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
@@ -32,16 +32,16 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [quoteTerms, setQuoteTerms] = useState("");
   // Currency is now derived from broker's placement data (aircraftAgreedValueCurrency)
-  const [quoteWrittenLine, setQuoteWrittenLine] = useState("100");
+  const [_quoteWrittenLine, setQuoteWrittenLine] = useState("100");
   const [quoteEndorsements, setQuoteEndorsements] = useState("");
   const [quoteHullRates, setQuoteHullRates] = useState<Record<string, string>>({});
   const [quoteLiabilityPremiums, setQuoteLiabilityPremiums] = useState<Record<string, string>>({});
-  const [quoteSparesPremium, setQuoteSparesPremium] = useState("");
+  const [_quoteSparesPremium, setQuoteSparesPremium] = useState("");
   const [quoteSparesRate, setQuoteSparesRate] = useState("");
   const [quoteSparesIncludedInHull, setQuoteSparesIncludedInHull] = useState(false);
   const [quotePphPremium, setQuotePphPremium] = useState("");
   const [quoteConfiscationIncluded, setQuoteConfiscationIncluded] = useState(true); // HW only: Include/Exclude confiscation (LSW555D)
-  const [quoteLolPremium, setQuoteLolPremium] = useState(""); // LOL: single premium input
+  const [_quoteLolPremium, setQuoteLolPremium] = useState(""); // LOL: single premium input
   const [quoteLolRateMode, setQuoteLolRateMode] = useState<"flat" | "ageBand">("flat");
   const [quoteLolFlatRate, setQuoteLolFlatRate] = useState("");
   const [quoteLolAgeBandRates, setQuoteLolAgeBandRates] = useState<Record<string, string>>({});
@@ -221,87 +221,6 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
     }
   };
 
-  // Handle document download
-  const handleDocumentClick = async (document: any) => {
-    if (!document.filePath) {
-      alert('This document was uploaded before file storage was implemented. Please re-upload it.');
-      return;
-    }
-    
-    try {
-      // Fetch signed URL from server
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-afd91142/documents/url/${encodeURIComponent(document.filePath)}`, {
-        headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Open in new tab
-        window.open(data.signedUrl, '_blank');
-      } else {
-        alert('Failed to get download URL. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      alert('Failed to download document. Please try again.');
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; bgColor: string; textColor: string; icon: JSX.Element }> = {
-      draft: { 
-        label: "DRAFT", 
-        bgColor: "bg-gray-100", 
-        textColor: "text-gray-700",
-        icon: <Clock className="size-4" />
-      },
-      compliance: { 
-        label: "COMPLIANCE", 
-        bgColor: "bg-purple-100", 
-        textColor: "text-purple-700",
-        icon: <Shield className="size-4" />
-      },
-      pending: { 
-        label: "PENDING", 
-        bgColor: "bg-orange-100", 
-        textColor: "text-orange-700",
-        icon: <Clock className="size-4" />
-      },
-      quoted: { 
-        label: "QUOTED", 
-        bgColor: "bg-blue-100", 
-        textColor: "text-blue-700",
-        icon: <FileText className="size-4" />
-      },
-      firmorder: { 
-        label: "FIRM ORDER", 
-        bgColor: "bg-green-100", 
-        textColor: "text-green-700",
-        icon: <CheckCircle2 className="size-4" />
-      },
-      bound: { 
-        label: "BOUND", 
-        bgColor: "bg-green-100", 
-        textColor: "text-green-700",
-        icon: <CheckCircle2 className="size-4" />
-      },
-      declined: { 
-        label: "DECLINED", 
-        bgColor: "bg-red-100", 
-        textColor: "text-red-700",
-        icon: <XCircle className="size-4" />
-      },
-      ntu: { 
-        label: "NTU", 
-        bgColor: "bg-yellow-100", 
-        textColor: "text-yellow-700",
-        icon: <Clock className="size-4" />
-      },
-    };
-    return statusConfig[status] || statusConfig.pending;
-  };
 
   const getProductName = (code: string) => {
     const products: Record<string, string> = {
@@ -315,7 +234,6 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
     return products[code] || code;
   };
 
-  const statusInfo = getStatusBadge(placement.status);
   const canEdit = userRole === "broker" && (placement.status === "pending" || placement.status === "compliance") && onEdit;
   const isHullWar = placement.productCode === "HW";
   const isHullDeductible = placement.productCode === "HD";
@@ -340,7 +258,6 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
   
   // Check for pilots over 65 (pilotsUnder65 = false means there ARE pilots 65 or older)
   // Only relevant for LOL placements (not PA, Hull War, or Hull Deductible)
-  const pilotsUnder65 = placement.draftData?.pilotsUnder65;
   const lolPilots = placement.draftData?.lolPilots || [];
   const hasPilotsOver65 = isLOL && lolPilots.some((pilot: any) => pilot.age && parseInt(pilot.age) > 65);
   
@@ -514,7 +431,7 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`relative flex items-center gap-1.5 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-colors duration-150 ${
                     isActive
                       ? "text-[#004225]"
@@ -726,9 +643,7 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
                               placement={placement}
                               currentUser={currentUser}
                               quoteEndorsements={quoteEndorsements}
-                              setQuoteEndorsements={setQuoteEndorsements}
                               quoteTerms={quoteTerms}
-                              setQuoteTerms={setQuoteTerms}
                               quoteLolRateMode={quoteLolRateMode}
                               setQuoteLolRateMode={setQuoteLolRateMode}
                               quoteLolFlatRate={quoteLolFlatRate}
@@ -866,7 +781,7 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
                         <Clock className="size-5 text-[#004225]" />
                         <span className="text-base font-semibold text-gray-700">Waiting for broker to accept quotation</span>
                       </div>
-                      {false && placement.quotes.map((quote) => {
+                      {false && placement.quotes?.map((quote) => {
                         const qcs: Record<string, string> = { USD: "$", GBP: "£", EUR: "€" };
                         const qsym = qcs[quote.currency] || "$";
                         const qFleet: any[] = placement.draftData?.fleet || [];
@@ -1259,7 +1174,7 @@ export function PlacementDetailView({ placement, userRole, onBack, onSubmitQuote
                         <FileCheck className="size-4 text-blue-600" />
                         <h4 className="text-sm font-semibold text-gray-900">Quote Received</h4>
                       </div>}
-                      {false && placement.quotes.map((quote) => {
+                      {false && placement.quotes?.map((quote) => {
                         const qcs2: Record<string, string> = { USD: "$", GBP: "£", EUR: "€" };
                         const qsym2 = qcs2[quote.currency] || "$";
                         const qFleet2: any[] = placement.draftData?.fleet || [];
@@ -2255,22 +2170,7 @@ function PremiumTab({ placement }: { placement: Placement }) {
 }
 
 // Insured Details Tab Component
-function InsuredDetailsTab({ placement, facilityRef }: { placement: Placement; facilityRef: string }) {
-  const getProductName = (code: string) => {
-    const products: Record<string, string> = {
-      HL: "Hull & Liability",
-      HW: "Hull War",
-      PA: "Personal Accident",
-      LOL: "Loss of Licence",
-      HD: "Hull Deductible",
-      UAS: "Drone Insurance",
-    };
-    return products[code] || code;
-  };
-
-  const isLOL = placement.productCode === "LOL";
-  const isHullWar = placement.productCode === "HW";
-  const isHullDeductible = placement.productCode === "HD";
+function InsuredDetailsTab({ placement, facilityRef: _facilityRef }: { placement: Placement; facilityRef: string }) {
   const reinsuredName = placement.draftData?.reinsuredName;
   const cedentName = placement.insuredName;
   const additionalInsureds = placement.draftData?.additionalInsureds || [];
@@ -2946,6 +2846,8 @@ function PilotsDetailsTab({ placement }: { placement: Placement }) {
   const isHullDeductible = placement.productCode === "HD";
   const isLOL = placement.productCode === "LOL";
   const isPA = placement.productCode === "PA";
+  const isUAS = placement.productCode === "UAS";
+  const aircraftLabel = isUAS ? "Drone" : "Aircraft";
   const fleet = placement.draftData?.fleet || [];
   const lolPilots = placement.draftData?.lolPilots || [];
   

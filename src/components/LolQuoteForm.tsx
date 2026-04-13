@@ -1,15 +1,12 @@
 import { Placement } from "../App";
 import { Button } from "./ui/button";
 import { Send, Clock, XCircle, Percent, Users, ChevronLeft } from "lucide-react";
-import { useState } from "react";
 
 interface LolQuoteFormProps {
   placement: Placement;
   currentUser?: any;
   quoteEndorsements: string;
-  setQuoteEndorsements: (v: string) => void;
   quoteTerms: string;
-  setQuoteTerms: (v: string) => void;
   quoteLolRateMode: "flat" | "ageBand";
   setQuoteLolRateMode: (v: "flat" | "ageBand") => void;
   quoteLolFlatRate: string;
@@ -25,8 +22,8 @@ interface LolQuoteFormProps {
 
 export function LolQuoteForm({
   placement, currentUser,
-  quoteEndorsements, setQuoteEndorsements,
-  quoteTerms, setQuoteTerms,
+  quoteEndorsements,
+  quoteTerms,
   quoteLolRateMode, setQuoteLolRateMode,
   quoteLolFlatRate, setQuoteLolFlatRate,
   quoteLolAgeBandRates, setQuoteLolAgeBandRates,

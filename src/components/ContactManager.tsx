@@ -98,15 +98,6 @@ export function ContactManager({
 
   // ── Bulk Upload Logic ──
 
-  const handleBulkUploadOpen = () => {
-    setShowBulkUpload(true);
-    setCsvText("");
-    setParsedRows([]);
-    setParseErrors([]);
-    setImportSuccess(false);
-    setImportCount(0);
-  };
-
   const handleBulkUploadClose = () => {
     setShowBulkUpload(false);
     setCsvText("");

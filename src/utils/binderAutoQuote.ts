@@ -10,7 +10,7 @@
  */
 
 import type { Binder, BinderRating, Quote, Placement } from "../App";
-import { convertCurrency, formatConversionNote } from "./currencyRates";
+import { convertCurrency } from "./currencyRates";
 
 interface FleetAircraft {
   registration: string;
@@ -499,15 +499,6 @@ function calculateLiabilityPremium(aircraft: FleetAircraft, rating: BinderRating
     default:
       return 0;
   }
-}
-
-/**
- * Calculate war premium for a single aircraft (HW product only)
- */
-function calculateWarPremium(aircraft: FleetAircraft, rating: BinderRating, productCode: string): number {
-  if (productCode !== "HW" || !rating.warRate) return 0;
-  const hullValue = parseAmount(aircraft.aircraftAgreedValue) || parseAmount(aircraft.sumsReinsured);
-  return hullValue * (rating.warRate / 100);
 }
 
 // Spares premium is included within the hull rate — no separate calculation needed.

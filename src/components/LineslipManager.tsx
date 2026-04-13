@@ -13,15 +13,6 @@ interface LineslipManagerProps {
   onActivateLineslip: (id: string) => void;
 }
 
-const productNames: Record<ProductCode, string> = {
-  HL: "Hull and Liability",
-  HW: "Hull War",
-  PA: "Personal Accident",
-  LOL: "Loss of Licence",
-  HD: "Hull Deductible",
-  UAS: "Drone Insurance",
-};
-
 const statusColors: Record<LineslipStatus, string> = {
   active: "bg-green-50 text-green-700 border-green-200",
   paused: "bg-yellow-50 text-yellow-700 border-yellow-200",
@@ -82,14 +73,6 @@ export function LineslipManager({
 
     return matchesSearch && matchesProduct && matchesStatus;
   });
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-GB", {

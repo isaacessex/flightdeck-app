@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
-import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { Shield, ChevronDown, Upload, FileText, X, Info, Check, Plane, AlertTriangle, Layers } from "lucide-react";
+import { Shield, Upload, FileText, X, Info, Check, Plane, Layers } from "lucide-react";
 import { getTypeAbbreviation } from "../utils/placementFormHelpers";
 import { BinderBuilder, type BinderSelection } from "./BinderBuilder";
-import type { Binder, Placement } from "../App";
+import type { Binder } from "../App";
 
 interface ReviewStepProps {
   // Coverage & Broker
@@ -55,6 +53,7 @@ interface ReviewStepProps {
   lolPilots: Array<{
     name: string;
     age: string;
+    position?: string;
     salary: string;
     salaryCurrency: string;
     sumsInsured: string;
@@ -185,7 +184,7 @@ export function ReviewStep({
   inceptionDate,
   expiryDate,
   inceptionDateTBA,
-  expiryDateTBA,
+  expiryDateTBA: _expiryDateTBA,
   bothDatesIncluded,
   inceptionTime,
   expiryTime,
@@ -232,8 +231,8 @@ export function ReviewStep({
   onBack,
   onSubmit,
   isSubmitting,
-  setGeneralClaimsInfo,
-  setClaimsDetails,
+  setGeneralClaimsInfo: _setGeneralClaimsInfo,
+  setClaimsDetails: _setClaimsDetails,
   formatDateToUK,
   formatNumberWithCommas,
   orderHereonPercentage,
@@ -266,7 +265,7 @@ export function ReviewStep({
       const eligibleBindersList = getEligibleBinders ? getEligibleBinders(productCode) : [];
       const hasLineslipSelected = eligibleLineslips.length > 0 && selectedLineslips[productCode];
       const hasBinderSelected = eligibleBindersList.length > 0 && selectedBinders?.[productCode];
-      const hasBuilderPanel = binderBuilderSelections?.[productCode]?.length > 0;
+      const hasBuilderPanel = (binderBuilderSelections?.[productCode]?.length ?? 0) > 0;
       return hasLineslipSelected || hasBinderSelected || hasBuilderPanel;
     });
 
@@ -982,11 +981,6 @@ export function ReviewStep({
                         <div className="space-y-3 mt-3">
                           {Object.entries(opwHours).map(([typeKey, hours]) => {
                             const [aircraftType, engineType] = typeKey.split('|');
-                            const formatNumber = (val: string) => {
-                              if (!val || val === '—') return val;
-                              const num = parseInt(val);
-                              return isNaN(num) ? val : num.toLocaleString();
-                            };
                             const formatHours = (val: string) => {
                               if (!val || val === '—') return '—';
                               if (val === 'type_rated') return 'Type Rated';
@@ -1568,7 +1562,7 @@ export function ReviewStep({
               const eligibleBindersList = getEligibleBinders ? getEligibleBinders(productCode) : [];
               const hasLineslip = eligibleLineslips.length > 0 && selectedLineslips[productCode];
               const hasBinder = eligibleBindersList.length > 0 && selectedBinders?.[productCode];
-              const hasBuilderPanel = binderBuilderSelections?.[productCode]?.length > 0;
+              const hasBuilderPanel = (binderBuilderSelections?.[productCode]?.length ?? 0) > 0;
               return hasLineslip || hasBinder || hasBuilderPanel;
             }) || isSubmitting}
             className="bg-[#004225] hover:bg-[#003319] text-white font-medium rounded-md px-10 py-2.5 text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"

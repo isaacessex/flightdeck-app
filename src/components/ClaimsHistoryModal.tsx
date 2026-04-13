@@ -40,9 +40,9 @@ export function ClaimsHistoryModal({
   setTempClaim,
   editingClaimIndex,
   setEditingClaimIndex,
-  claimsHistory,
-  setClaimsHistory,
-  setHasClaimsHistory,
+  claimsHistory: _claimsHistory,
+  setClaimsHistory: _setClaimsHistory,
+  setHasClaimsHistory: _setHasClaimsHistory,
   selectedMainCoverages,
   selectedSubCoverages,
   handleSaveClaim

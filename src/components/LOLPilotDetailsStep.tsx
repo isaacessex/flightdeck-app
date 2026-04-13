@@ -1,4 +1,3 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -27,7 +26,6 @@ interface LOLPilotDetailsStepProps {
   onBack: () => void;
   onContinue: () => void;
   formatNumberWithCommas: (value: string) => string;
-  removeCommas: (value: string) => string;
   stepNumber?: number;
   totalSteps?: number;
 }
@@ -38,7 +36,6 @@ export function LOLPilotDetailsStep({
   onBack,
   onContinue,
   formatNumberWithCommas,
-  removeCommas,
   stepNumber,
   totalSteps,
 }: LOLPilotDetailsStepProps) {

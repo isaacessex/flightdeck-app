@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Shield, Plane, Calendar, FileText, AlertTriangle, Users, CheckCircle2, Sparkles, Upload, X, Globe } from "lucide-react";
+import { Shield, Plane, Calendar, FileText, AlertTriangle, Users, Upload, X, Globe } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Input } from "./ui/input";

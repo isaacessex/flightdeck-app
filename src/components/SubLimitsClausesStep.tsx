@@ -175,22 +175,6 @@ export function SubLimitsClausesStep({
     </Select>
   );
 
-  // Check if PPH limit is valid
-  const isPphLimitValid = () => {
-    if (!hasPPH) return true;
-    if (!pphLimit || pphLimit.trim() === "") return false;
-    const pphValue = parseFloat(removeCommas(pphLimit));
-    for (const aircraft of fleet) {
-      if (aircraft.liabilityLimit && aircraft.liabilityLimit.trim() !== "") {
-        const aircraftLiabilityValue = parseFloat(removeCommas(aircraft.liabilityLimit));
-        if (aircraft.liabilityLimitCurrency === pphCurrency) {
-          if (pphValue > aircraftLiabilityValue) return false;
-        }
-      }
-    }
-    return true;
-  };
-
   const validateAndContinue = () => {
     if (hasPPH && (!pphLimit || pphLimit.trim() === "")) {
       toast.error("Please enter a liability limit for Products, Premises & Hangarkeepers coverage.");

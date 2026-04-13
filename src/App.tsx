@@ -1,8 +1,7 @@
-import { Plane, LayoutDashboard, FileText, Search, Menu, LogOut, BarChart3, Users, Clipboard, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, FileText, Menu, LogOut, BarChart3, Users, Clipboard, ShieldCheck } from "lucide-react";
 import { LineslipForm } from "./components/LineslipForm";
 import { ReportsPage } from "./components/ReportsPage";
 import { ContactManager } from "./components/ContactManager";
-import logo from "./assets/e2b6e0878a9bbe4dc643aa3ef771590d26401ac5.png";
 import flightdeckLogo from "./assets/58f0b9636c069a6dfa82df8f45f38ac049229655.png";
 import { projectId, publicAnonKey } from './utils/supabase/info';
 import { useState, useEffect } from "react";
@@ -15,7 +14,7 @@ import { BinderManager } from "./components/BinderManager";
 import { ContactForm } from "./components/ContactForm";
 import { PlacementDetailView } from "./components/PlacementDetailView";
 import { DebugLineslipViewer } from "./components/DebugLineslipViewer";
-import { notifyPending, notifyQuoted, notifyFirmOrder, notifyBound } from "./utils/notifications";
+import { notifyPending, notifyQuoted } from "./utils/notifications";
 import { generateQuoteSlipBase64 } from "./components/SlipDocumentViewer";
 import { calculateBinderQuote, isEligibleForAutoQuote } from "./utils/binderAutoQuote";
 
@@ -295,11 +294,9 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [editingLineslip, setEditingLineslip] = useState<Lineslip | null>(null);
   const [editingBinder, setEditingBinder] = useState<Binder | null>(null);
-  const [viewingContact, setViewingContact] = useState<Contact | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [showContactForm, setShowContactForm] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Load dark mode preference from localStorage
+  const [_isDarkMode, _setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('aerocover-dark-mode');
     return saved === 'true';
   });
@@ -464,23 +461,6 @@ export default function App() {
 
     loadBinders();
   }, []);
-
-  // Helper function to remove duplicate IDs - keeps first occurrence only
-  const removeDuplicateIds = (placements: Placement[]): Placement[] => {
-    const seenIds = new Set<string>();
-    const uniquePlacements: Placement[] = [];
-    
-    for (const placement of placements) {
-      if (!seenIds.has(placement.id)) {
-        seenIds.add(placement.id);
-        uniquePlacements.push(placement);
-      } else {
-        console.warn(`Duplicate placement ID found and removed: ${placement.id}`);
-      }
-    }
-    
-    return uniquePlacements;
-  };
 
   // Save placements to database whenever they change
   useEffect(() => {
@@ -811,7 +791,7 @@ export default function App() {
                   premium: scaledPremium,
                   writtenLine: panelEntry.linePercent,
                   terms: aqr.quote.terms + `\nPanel share: ${panelEntry.linePercent}% of 100% order`,
-                });
+                } as Quote);
               }
               if (allQuotes.length > 0) {
                 updatedPlacement.status = "quoted";
@@ -839,11 +819,11 @@ export default function App() {
                 const autoQuoteResult = calculateBinderQuote(updatedPlacement as Placement, selectedBinder);
                 console.log('⚡ Auto-quote breakdown:', autoQuoteResult.breakdown);
                 
-                const autoQuote: Quote = {
+                const autoQuote = {
                   ...autoQuoteResult.quote,
                   id: `Q-${String((updatedPlacement.quotes?.length || 0) + 1).padStart(3, "0")}`,
                   submittedDate: new Date().toISOString().split("T")[0],
-                };
+                } as Quote;
                 
                 updatedPlacement.status = "quoted";
                 updatedPlacement.quotes = [...(updatedPlacement.quotes || []), autoQuote];
@@ -928,7 +908,6 @@ export default function App() {
         if (builderPanel && Array.isArray(builderPanel) && builderPanel.length > 0) {
           console.log('🏗️ Binder Builder panel detected with', builderPanel.length, 'markets');
           const allQuotes: Quote[] = [];
-          let allEligible = true;
           
           for (const panelEntry of builderPanel) {
             const panelBinder = binders.find(b => b.id === panelEntry.binderId);
@@ -937,7 +916,6 @@ export default function App() {
             const eligibility = isEligibleForAutoQuote(newPlacement, panelBinder);
             if (!eligibility.eligible) { 
               console.warn('⚠️ Binder Builder: binder ineligible:', panelBinder.name, eligibility.reason);
-              allEligible = false; 
               continue; 
             }
             
@@ -945,14 +923,14 @@ export default function App() {
             // Scale premium to the binder's line share
             const scaledPremium = Math.round(autoQuoteResult.quote.premium * (panelEntry.linePercent / 100) * 100) / 100;
             
-            const autoQuote: Quote = {
+            const autoQuote = {
               ...autoQuoteResult.quote,
               id: `Q-${String(allQuotes.length + 1).padStart(3, "0")}`,
               submittedDate: new Date().toISOString().split("T")[0],
               premium: scaledPremium,
               writtenLine: panelEntry.linePercent,
               terms: autoQuoteResult.quote.terms + `\nPanel share: ${panelEntry.linePercent}% of 100% order`,
-            };
+            } as Quote;
             allQuotes.push(autoQuote);
             console.log(`🏗️ Panel quote from ${panelBinder.name}: ${panelEntry.linePercent}% → ${autoQuoteResult.quote.currency} ${scaledPremium}`);
           }
@@ -988,11 +966,11 @@ export default function App() {
             const autoQuoteResult = calculateBinderQuote(newPlacement, selectedBinder);
             console.log('⚡ Auto-quote breakdown:', autoQuoteResult.breakdown);
             
-            const autoQuote: Quote = {
+            const autoQuote = {
               ...autoQuoteResult.quote,
               id: `Q-${String((newPlacement.quotes?.length || 0) + 1).padStart(3, "0")}`,
               submittedDate: new Date().toISOString().split("T")[0],
-            };
+            } as Quote;
             
             newPlacement.status = "quoted";
             newPlacement.quotes = [autoQuote];
@@ -1033,11 +1011,10 @@ export default function App() {
     setPlacements((prev) =>
       prev.map((p) => {
         if (p.id === placementId) {
-          const newQuote: Quote = {
+          const newQuote = {
             ...quote,
             id: `Q-${String((p.quotes?.length || 0) + 1).padStart(3, "0")}`,
             submittedDate: new Date().toISOString().split("T")[0],
-            // ── Snapshot all placement data at quote time so the quotation PDF never changes ──
             placementSnapshot: {
               draftData: { ...(p.draftData || {}) },
               insuredName: p.insuredName,
@@ -1049,7 +1026,7 @@ export default function App() {
               inceptionDate: p.draftData?.inceptionDate || p.inceptionDate,
               expiryDate: p.draftData?.expiryDate,
             },
-          };
+          } as Quote;
           // Send QUOTED notification to broker + preferred broker contact (fire and forget)
           // Generate the quote slip PDF and attach it to the email
           const updatedPlacement = {
@@ -1416,10 +1393,6 @@ export default function App() {
     setContacts(contacts.filter((c) => c.id !== id));
   };
 
-  const handleViewContact = (contact: Contact) => {
-    setViewingContact(contact);
-  };
-
   // Authentication handler
   const handleLogin = (email: string, password: string): boolean => {
     const user = contacts.find(
@@ -1668,7 +1641,7 @@ export default function App() {
             }}
           />
         )}
-        {currentView === "review" && <UnderwriterReview placements={placements} />}
+        {currentView === "review" && <UnderwriterReview placements={placements} onSubmitQuote={handleSubmitQuote} onDecline={handleDeclinePlacement} />}
         {currentView === "lineslipManager" && (
           <LineslipManager
             lineslips={lineslips}

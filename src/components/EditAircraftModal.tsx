@@ -1,4 +1,3 @@
-import { Aircraft } from "../types/placementForm";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -115,7 +114,6 @@ export function EditAircraftModal({
   registration,
   setRegistration,
   aircraftType,
-  setAircraftType,
   engineType,
   setEngineType,
   make,
@@ -149,7 +147,6 @@ export function EditAircraftModal({
   standardDeductible,
   setStandardDeductible,
   standardDeductibleCurrency,
-  setStandardDeductibleCurrency,
   deductibleBuydown,
   setDeductibleBuydown,
   standardUses,

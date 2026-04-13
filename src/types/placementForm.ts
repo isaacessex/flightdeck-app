@@ -34,6 +34,11 @@ export interface Aircraft {
   specialUses: string[];
   specialUsesOther: string;
   excludedCountries: string[];
+  liabilityType?: string;
+  standardDeductible?: string;
+  standardDeductibleCurrency?: string;
+  deductibleBuydown?: string;
+  deductibleBuydownCurrency?: string;
   taxType: string; // "addition" or "deduction"
   taxPercentage: string;
   taxName: string;

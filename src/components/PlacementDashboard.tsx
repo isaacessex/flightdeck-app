@@ -1,4 +1,4 @@
-import { Placement, UserRole, PlacementStatus, Lineslip } from "../App";
+import { Placement, UserRole, Lineslip } from "../App";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { PlaneTakeoff, Building2, UserX, Search, Radar, ChevronDown, LayoutGrid, Clock, CheckCircle2, FileText, Plus, Shield, Lock, Zap } from "lucide-react";

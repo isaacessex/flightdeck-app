@@ -11,7 +11,6 @@ import {
   Save, 
   Users, 
   Building2, 
-  Calendar,
   DollarSign,
   Shield,
   AlertTriangle,
@@ -42,6 +41,12 @@ interface PAPilot {
   medicalHistory: string;
 }
 
+function formatContactDisplayName(contact: Contact): string {
+  if (contact.type === "Insured" && contact.insuredName) return contact.insuredName;
+  if (contact.type === "Cedent" && contact.cedentName) return contact.cedentName;
+  return `${contact.firstName} ${contact.lastName}`.trim();
+}
+
 export function PAQuoteForm({
   onSubmit,
   onCancel,
@@ -49,7 +54,6 @@ export function PAQuoteForm({
   lineslips,
   contacts,
   draftPlacement,
-  onAddContact,
 }: PAQuoteFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   
@@ -163,23 +167,19 @@ export function PAQuoteForm({
       generalClaimsInfo
     };
 
-    const placement: Omit<Placement, "id"> = {
+    const placement = {
       brokerName: "Current Broker",
       insuredName,
       productCode: "PA",
-      status: "DRAFT",
+      status: "draft" as const,
       submittedDate: new Date().toISOString().split("T")[0],
-      lastModified: new Date().toISOString().split("T")[0],
       draftData,
-    };
+    } as Omit<Placement, "id">;
 
     onSaveDraft(placement);
   };
 
   const handleSubmit = () => {
-    const selectedLineslipObj = lineslips.find(l => l.id === selectedLineslip);
-    const selectedContactObj = contacts.find(c => c.id === selectedContact);
-
     const draftData = {
       insuredName,
       riskDetails,
@@ -206,18 +206,14 @@ export function PAQuoteForm({
       generalClaimsInfo
     };
 
-    const placement: Omit<Placement, "id"> = {
+    const placement = {
       brokerName: "Current Broker",
       insuredName,
       productCode: "PA",
-      status: "PENDING",
+      status: "pending" as const,
       submittedDate: new Date().toISOString().split("T")[0],
-      lastModified: new Date().toISOString().split("T")[0],
-      underwriter: selectedLineslipObj?.underwriter || "",
-      lineslipReference: selectedLineslipObj?.reference || "",
-      contactPerson: selectedContactObj?.name || "",
       draftData,
-    };
+    } as Omit<Placement, "id">;
 
     onSubmit(placement);
   };
@@ -350,7 +346,7 @@ export function PAQuoteForm({
                       <SelectContent>
                         {contacts.map((contact) => (
                           <SelectItem key={contact.id} value={contact.id}>
-                            {contact.name} - {contact.company}
+                            {formatContactDisplayName(contact)} - {contact.company}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -368,7 +364,7 @@ export function PAQuoteForm({
                           .filter((l) => l.productCode === "PA")
                           .map((lineslip) => (
                             <SelectItem key={lineslip.id} value={lineslip.id}>
-                              {lineslip.reference} - {lineslip.underwriter}
+                              {lineslip.reference} - {lineslip.underwriters.map((u) => u.name).join(", ")}
                             </SelectItem>
                           ))}
                       </SelectContent>

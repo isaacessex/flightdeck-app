@@ -13,15 +13,6 @@ interface BinderManagerProps {
   onActivateBinder: (id: string) => void;
 }
 
-const productNames: Record<ProductCode, string> = {
-  HL: "Hull and Liability",
-  HW: "Hull War",
-  PA: "Personal Accident",
-  LOL: "Loss of Licence",
-  HD: "Hull Deductible",
-  UAS: "Drone Insurance",
-};
-
 const statusColors: Record<LineslipStatus, string> = {
   active: "bg-green-50 text-green-700 border-green-200",
   paused: "bg-yellow-50 text-yellow-700 border-yellow-200",

@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense } from "react";
-import { Lineslip, Placement, ProductCode, Contact } from "../App";
+import { Lineslip, Placement, Contact } from "../App";
 import { Send } from "lucide-react";
 
 // Lazy load report components

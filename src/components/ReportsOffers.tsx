@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Placement, ProductCode } from "../App";
+import { Placement } from "../App";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -7,14 +7,10 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import {
   Send,
-  Clock,
   CheckCircle2,
-  XCircle,
   Search,
   FileDown,
   TrendingUp,
-  Timer,
-  Ban,
   ChevronDown,
   ChevronUp,
   AlertCircle,
@@ -30,8 +26,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   Legend,
 } from "recharts";
 

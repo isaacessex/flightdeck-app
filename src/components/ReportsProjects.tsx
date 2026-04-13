@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Placement, Lineslip, Contact, ProductCode } from "../App";
+import { Placement, Lineslip, Contact } from "../App";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -9,16 +9,10 @@ import {
   FolderOpen,
   Search,
   FileDown,
-  Plane,
-  DollarSign,
-  Users,
   TrendingUp,
   ChevronDown,
   ChevronUp,
   AlertCircle,
-  Clock,
-  CheckCircle2,
-  Calendar,
 } from "lucide-react";
 import {
   BarChart,
@@ -46,7 +40,7 @@ const productNames: Record<string, string> = {
   UAS: "Drone Insurance",
 };
 
-export function ReportsProjects({ placements, lineslips, contacts = [] }: ReportsProjectsProps) {
+export function ReportsProjects({ placements, lineslips: _lineslips, contacts: _contacts = [] }: ReportsProjectsProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [productFilter, setProductFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<"insured" | "value" | "date" | "status">("date");

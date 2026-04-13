@@ -93,62 +93,6 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   bound:     { label: "BOUND",           color: "#ffffff", bg: BRAND,     stepIndex: 4 },
 };
 
-const WORKFLOW_STEPS = ["Submitted", "Quoted", "Firm Order", "Bound"];
-
-function buildProgressBar(currentStep: number): string {
-  return `
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0;">
-      <tr>
-        ${WORKFLOW_STEPS.map((step, i) => {
-          const stepNum = i + 1;
-          const isComplete = stepNum < currentStep;
-          const isCurrent = stepNum === currentStep;
-          const circleColor = isComplete ? BRAND : isCurrent ? BRAND : "#d1d5db";
-          const textColor = isComplete || isCurrent ? BRAND : "#9ca3af";
-          const fontWeight = isCurrent ? "700" : "500";
-          const innerContent = isComplete 
-            ? `<span style="color: #ffffff; font-size: 11px; line-height: 1;">&#10003;</span>` 
-            : isCurrent 
-              ? `<span style="color: #ffffff; font-size: 10px; font-weight: 700; line-height: 1;">${stepNum}</span>` 
-              : `<span style="color: #9ca3af; font-size: 10px; font-weight: 600; line-height: 1;">${stepNum}</span>`;
-          const circleBg = isComplete || isCurrent ? BRAND : "#ffffff";
-          
-          return `
-            <td width="25%" align="center" style="padding: 0 4px;">
-              <table cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center" style="padding-bottom: 6px;">
-                    <div style="width: 24px; height: 24px; border-radius: 50%; background: ${circleBg}; border: 2px solid ${circleColor}; display: inline-block; text-align: center; line-height: 22px;">
-                      ${innerContent}
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="center">
-                    <span style="font-size: 10px; font-weight: ${fontWeight}; color: ${textColor}; letter-spacing: 0.5px; text-transform: uppercase;">${step}</span>
-                  </td>
-                </tr>
-              </table>
-            </td>`;
-        }).join("")}
-      </tr>
-      <tr>
-        <td colspan="4" style="padding: 10px 32px 0 32px;">
-          <table width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              ${WORKFLOW_STEPS.map((_, i) => {
-                const stepNum = i + 1;
-                const isComplete = stepNum <= currentStep;
-                const barColor = isComplete ? BRAND : "#e5e7eb";
-                return `<td width="25%" style="padding: 0 2px;"><div style="height: 3px; background: ${barColor}; border-radius: 2px;"></div></td>`;
-              }).join("")}
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>`;
-}
-
 function detailRow(label: string, value: string, options?: { bold?: boolean; color?: string }): string {
   const valStyle = [
     "font-size: 13px",
@@ -179,7 +123,7 @@ function ctaButton(): string {
         </table>`;
 }
 
-function baseEmailTemplate(status: string, content: string): string {
+function baseEmailTemplate(_: string, content: string): string {
   return `
   <div style="background-color: #f3f4f6; padding: 32px 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased;">
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 580px; margin: 0 auto;">
